@@ -9,9 +9,10 @@ library(coda)
 
 N <- 20
 # --- Historical data ---
-Y0 <- 5      # historical mean
-n0 <- N       # historical sample size
-sigma0 <- 2    # known sd for historical data
+H <- 3      # number of versions
+Y0 <- c(2,3,4)      # historical mean
+n0 <- rep(N, H)       # historical sample size for each version
+sigma0 <- rep(2, H)    # known sd for historical data (maybe put a prior on this)
 
 # --- Current data ---
 Y <- 5    # current mean
