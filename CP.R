@@ -8,12 +8,12 @@ library(rjags)
 library(coda)
 
 # --- Historical data ---
-Y0 <- 12       # historical mean
+Y0 <- 5      # historical mean
 n0 <- 20       # historical sample size
 sigma0 <- 2    # known sd for historical data
 
 # --- Current data ---
-Y <- 10        # current mean
+Y <- 15      # current mean
 n <- 20        # current sample size
 sigma <- 2     # known sd for current data
 
@@ -29,6 +29,11 @@ data_jags <- list(
   prec_hist_base = prec_hist_base
 )
 
+data_jags <- list(
+  Y0 = Y0,
+  prec_hist_base = prec_hist_base
+)
+
 # --- JAGS model ---
 model_string <- "
 model {
@@ -39,13 +44,15 @@ model {
   a0 ~ dbeta(tau, 1)
 
   # Historical theta (precision scaled by a0)
-  theta_hist ~ dnorm(Y0, prec_hist_base * a0)
+  # theta_hist ~ dnorm(Y0, prec_hist_base * a0)
+  theta_hist ~ dnorm(Y0, prec_hist_base * a0 + 1.0E-6)
+
 
   # Current theta follows a normal centered at historical theta with precision tau
   theta_curr ~ dnorm(theta_hist, tau)
 
   # Likelihood for current data
-  Y ~ dnorm(theta_curr, prec_curr)
+  #Y ~ dnorm(theta_curr, prec_curr)
 }
 "
 
@@ -54,8 +61,18 @@ model <- jags.model(textConnection(model_string), data = data_jags, n.chains = 3
 update(model, 1000)
 samples <- coda.samples(model, variable.names = c("theta_hist", "theta_curr", "tau", "a0"), n.iter = 5000)
 
-summary(samples)
+
 
 # Extract samples as a matrix
 samples_mat <- as.matrix(samples)
+
+head(samples_mat)
+mean(samples_mat[,"theta_hist"])
+mean(samples_mat[,"theta_curr"])
+mean(samples_mat[, "tau"])
+mean(samples_mat[, "a0"])
+mean(rbeta(1e3, mean(samples_mat[, "tau"]), 1))
+
+mean(samples_mat[, "tau"]/(1 + samples_mat[, "tau"]))
+
 
