@@ -1,5 +1,6 @@
 #########################################################################
-# Hierarchical commensurate prior 
+# Hierarchical commensurate prior with 3 historical datasets + current
+# Each historical dataset likelihood is raised to a power a0[j]
 #########################################################################
 
 remove(list = ls())
@@ -7,72 +8,94 @@ remove(list = ls())
 library(rjags)
 library(coda)
 
-N <- 20
-# --- Historical data ---
-H <- 3      # number of versions
-Y0 <- c(2,3,4)      # historical mean
-n0 <- rep(N, H)       # historical sample size for each version
-sigma0 <- rep(2, H)    # known sd for historical data (maybe put a prior on this)
+# ------------------------------
+# Data setup
+# ------------------------------
+N <- 100
+sigma <- 2
 
-# --- Current data ---
-Y <- 5    # current mean
-n <- N       # current sample size
-sigma <- 2     # known sd for current data
+# Historical sample means
+Y1 <- 2
+Y2 <- 2
+Y3 <- 10
 
-# --- Compute base precisions ---
-prec_curr <- n / sigma^2
-prec_hist_base <- n0 / sigma0^2   # precision of historical mean (before a0 scaling)
+# Current sample mean
+Y  <- 12
 
-# --- Data for JAGS ---
+# Precisions (all datasets same size and sigma for simplicity)
+prec_hist_base <- N / sigma^2
+prec_curr <- N / sigma^2
+
+# JAGS data list
 data_jags <- list(
-  Y = Y,
-  Y0 = Y0,
-  prec_curr = prec_curr,
-  prec_hist_base = prec_hist_base
+  Y1 = Y1,
+  Y2 = Y2,
+  Y3 = Y3,
+  Y  = Y,
+  prec_hist_base = prec_hist_base,
+  prec_curr = prec_curr
 )
 
-
-# --- JAGS model ---
+# ------------------------------
+# JAGS model
+# ------------------------------
 model_string <- "
 model {
-  # Prior on tau (precision between theta_curr and theta_hist)
-  #tau ~ dgamma(0.1, 0.1)
+  # Priors for tau and a0
+  for (i in 1:3) {
+    logtau[i] ~ dnorm(log(5), 1.0)    # weakly informative prior on commensurability
+    tau[i] <- exp(logtau[i])
+    a0[i] ~ dbeta(tau[i], 1)          # power prior weight for each dataset
+  }
 
-  logtau ~ dnorm(log(5), 10)   
-  tau <- exp(logtau)
+  # Historical 1
+  theta[1] ~ dnorm(0, 1.0E-6)                     # vague prior
+  Y1 ~ dnorm(theta[1], prec_hist_base * a0[1])    # downweighted likelihood
 
+  # Historical 2
+  theta[2] ~ dnorm(theta[1], tau[1])              # commensurate link
+  Y2 ~ dnorm(theta[2], prec_hist_base * a0[2])    # downweighted likelihood
 
-  # Power prior weight a0 with Beta(tau,1) prior
-  a0 ~ dbeta(tau, 1)
+  # Historical 3
+  theta[3] ~ dnorm(theta[2], tau[2])              # commensurate link
+  Y3 ~ dnorm(theta[3], prec_hist_base * a0[3])    # downweighted likelihood
 
-  # Historical theta (precision scaled by a0)
-  theta_hist ~ dnorm(Y0, prec_hist_base * a0)
-  # theta_hist ~ dnorm(Y0, prec_hist_base * a0 + 1.0E-6)
-
-
-  # Current theta follows a normal centered at historical theta with precision tau
-  theta_curr ~ dnorm(theta_hist, tau)
-
-  # Likelihood for current data
-  Y ~ dnorm(theta_curr, prec_curr)
+  # Current
+  theta_curr ~ dnorm(theta[3], tau[3])            # commensurate link
+  Y ~ dnorm(theta_curr, prec_curr)                # full likelihood
 }
 "
 
-# --- Run model ---
-model <- jags.model(textConnection(model_string), data = data_jags, n.chains = 3, n.adapt = 1000)
-update(model, 1000)
-samples <- coda.samples(model, variable.names = c("theta_hist", "theta_curr", "tau", "a0"), n.iter = 5000)
+# ------------------------------
+# Run the model
+# ------------------------------
+model <- jags.model(textConnection(model_string),
+                    data = data_jags,
+                    n.chains = 3,
+                    n.adapt = 1000)
 
+update(model, 1000)  # burn-in
 
+samples <- coda.samples(model,
+                        variable.names = c("theta", "theta_curr", "tau", "a0"),
+                        n.iter = 5000)
 
-# Extract samples as a matrix
+# ------------------------------
+# Posterior summaries
+# ------------------------------
 samples_mat <- as.matrix(samples)
 
 head(samples_mat)
-mean(samples_mat[,"theta_hist"])
-mean(samples_mat[,"theta_curr"])
-mean(samples_mat[, "tau"])
-mean(samples_mat[, "a0"])
 
+cat("Posterior means:\n")
+cat("theta[1]:", mean(samples_mat[, 'theta[1]']), "\n")
+cat("theta[2]:", mean(samples_mat[, 'theta[2]']), "\n")
+cat("theta[3]:", mean(samples_mat[, 'theta[3]']), "\n")
+cat("theta_curr:", mean(samples_mat[, 'theta_curr']), "\n\n")
 
+cat("tau means:\n")
+print(colMeans(samples_mat[, grep('tau', colnames(samples_mat))]))
+
+cat("a0 means:\n")
+print(colMeans(samples_mat[, grep('a0', colnames(samples_mat))]))
 
