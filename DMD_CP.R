@@ -1,6 +1,6 @@
 #########################################################################
 # Hierarchical commensurate prior with 3 historical datasets + current
-# Each historical dataset likelihood is raised to a power a0[j]
+# Each historical dataset likelihood is raised to a power alpha[j]
 #########################################################################
 
 remove(list = ls())
@@ -41,24 +41,24 @@ data_jags <- list(
 # ------------------------------
 model_string <- "
 model {
-  # Priors for tau and a0
+  # Priors for tau and alpha
   for (i in 1:3) {
     logtau[i] ~ dnorm(log(5), 1.0)    # weakly informative prior on commensurability
     tau[i] <- exp(logtau[i])
-    a0[i] ~ dbeta(tau[i], 1)          # power prior weight for each dataset
+    alpha[i] ~ dbeta(tau[i], 1)          # power prior weight for each dataset
   }
 
   # Historical 1
   theta[1] ~ dnorm(0, 1.0E-6)                     # vague prior
-  Y1 ~ dnorm(theta[1], prec_hist_base * a0[1])    # downweighted likelihood
+  Y1 ~ dnorm(theta[1], prec_hist_base * alpha[1])    # downweighted likelihood
 
   # Historical 2
   theta[2] ~ dnorm(theta[1], tau[1])              # commensurate link
-  Y2 ~ dnorm(theta[2], prec_hist_base * a0[2])    # downweighted likelihood
+  Y2 ~ dnorm(theta[2], prec_hist_base * alpha[2])    # downweighted likelihood
 
   # Historical 3
   theta[3] ~ dnorm(theta[2], tau[2])              # commensurate link
-  Y3 ~ dnorm(theta[3], prec_hist_base * a0[3])    # downweighted likelihood
+  Y3 ~ dnorm(theta[3], prec_hist_base * alpha[3])    # downweighted likelihood
 
   # Current
   theta_curr ~ dnorm(theta[3], tau[3])            # commensurate link
@@ -77,7 +77,7 @@ model <- jags.model(textConnection(model_string),
 update(model, 1000)  # burn-in
 
 samples <- coda.samples(model,
-                        variable.names = c("theta", "theta_curr", "tau", "a0"),
+                        variable.names = c("theta", "theta_curr", "tau", "alpha"),
                         n.iter = 5000)
 
 # ------------------------------
@@ -94,8 +94,8 @@ cat("theta[3]:", mean(samples_mat[, 'theta[3]']), "\n")
 cat("theta_curr:", mean(samples_mat[, 'theta_curr']), "\n\n")
 
 cat("tau means:\n")
-print(colMeans(samples_mat[, grep('tau', colnames(samples_mat))]))
+print(colMeans(samples_mat[, grep('tau', colnamles(samples_mat))]))
 
-cat("a0 means:\n")
-print(colMeans(samples_mat[, grep('a0', colnames(samples_mat))]))
+cat("alpha means:\n")
+print(colMeans(samples_mat[, grep('alpha', colnames(samples_mat))]))
 
