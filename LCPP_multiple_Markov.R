@@ -42,8 +42,16 @@ data_jags <- list(
 # --- JAGS model ---
 model_string <- "
 model {
+  mu_theta ~ dnorm(log(5), 1.0)         # mean around log(5), SD = 1
+  phi      ~ dunif(0, 1)                # persistence between 0 and 1
+  sigma_eta ~ dunif(0, 1)               # moderate innovation SD
+
+  logtau[1] ~ dnorm(log(5), 0.1)
+  for (j in 2:3){
+    logtau[j] ~ dnorm(mu_theta + phi*(logtau[j-1]-mu_theta), 1/sigma_eta^2)
+  }
+
   for(j in 1:3){
-      logtau[j] ~ dnorm(log(5), 10)   
       tau[j] <- exp(logtau[j])
       alpha[j] ~ dbeta(tau[j], 1)
       w[j] <- 1/(var_hist[j]/(alpha[j]*n_hist[j]) + 1/tau[j])
@@ -112,4 +120,4 @@ c(meanhist1, meanhist2, meanhist3, mean(y))
 mean(samples_mat[, "tau[1]"])
 mean(samples_mat[, "tau[2]"])
 mean(samples_mat[, "tau[3]"])
-
+s
