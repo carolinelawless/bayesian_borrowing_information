@@ -4,6 +4,7 @@
 
 remove(list = ls())
 
+
 library(rjags)
 library(coda)
 
@@ -15,8 +16,8 @@ sigmac <- 1
 
 # historical data
 hist1 = rnorm(n, 1, sigmah1)
-hist2 = rnorm(n, 1, sigmah2)
-hist3 = rnorm(n, 1, sigmah3)
+hist2 = rnorm(n, 1.5, sigmah2)
+hist3 = rnorm(n, 2, sigmah3)
 meanhist1 = mean(hist1)
 varhist1 = var(hist1)
 meanhist2 = mean(hist2)
@@ -25,7 +26,7 @@ meanhist3 = mean(hist3)
 varhist3 = var(hist3)
 
 # current data
-y = rnorm(n, 1, sigmac)
+y = rnorm(n, 2.5, sigmac)
 
 
 # --- Data for JAGS ---
@@ -76,7 +77,7 @@ model <- jags.model(textConnection(model_string), data = data_jags, n.chains = 3
 update(model, 1000)
 
 
-samples <- coda.samples(model, variable.names = c("tau", "alpha", "prec", "a", "b", "c"), n.iter = 5000)
+samples <- coda.samples(model, variable.names = c("tau", "alpha", "prec", "a", "b", "c", "mu"), n.iter = 5000)
 
 
 
@@ -92,3 +93,12 @@ mean(samples_mat[, "tau[3]"])
 mean(samples_mat[, "a"])
 mean(samples_mat[, "b"])
 mean(samples_mat[, "c"])
+
+mean(samples_mat[, "mu"]) #2.572
+var(samples_mat[, "mu"]) #0.006
+
+quantile(samples_mat[, "mu"], 0.995) - quantile(samples_mat[, "mu"], 0.005) #0.41
+
+
+c(mean(samples_mat[,"alpha[1]"]), mean(samples_mat[,"alpha[2]"]), mean(samples_mat[,"alpha[3]"])) # 0.21, 0.34, 0.47
+

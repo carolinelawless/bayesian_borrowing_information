@@ -66,7 +66,7 @@ model {
 # --- Run model ---
 model <- jags.model(textConnection(model_string), data = data_jags, n.chains = 3, n.adapt = 1000)
 update(model, 1000)
-samples <- coda.samples(model, variable.names = c("tau", "alpha"), n.iter = 5000)
+samples <- coda.samples(model, variable.names = c("tau", "alpha", "mu"), n.iter = 5000)
 
 
 
@@ -80,6 +80,16 @@ mean(samples_mat[, "tau[1]"])
 mean(samples_mat[, "tau[2]"])
 mean(samples_mat[, "tau[3]"])
 
+
+mean(samples_mat[, "mu"]) #2.44
+var(samples_mat[, "mu"]) #0.005
+
+
+quantile(samples_mat[, "mu"], c(0.005, 0.995))
+
+quantile(samples_mat[, "mu"], 0.995) - quantile(samples_mat[, "mu"], 0.005) #0.36
+
+c(mean(samples_mat[,"alpha[1]"]), mean(samples_mat[,"alpha[2]"]), mean(samples_mat[,"alpha[3]"])) # 0.79, 0.80, 0.84
 
 
 
