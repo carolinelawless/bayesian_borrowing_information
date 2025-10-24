@@ -100,5 +100,5 @@ var(samples_mat[, "mu"]) #0.006
 quantile(samples_mat[, "mu"], 0.995) - quantile(samples_mat[, "mu"], 0.005) #0.41
 
 
-c(mean(samples_mat[,"alpha[1]"]), mean(samples_mat[,"alpha[2]"]), mean(samples_mat[,"alpha[3]"])) # 0.21, 0.34, 0.47
+c(mean(samples_mat[,"alpha[1]"]), mean(samples_mat[,"alpha[2]"]), mean(samples_mat[,"alpha[3]"])) # 0.21, 0.34, 0. Ò47
 
