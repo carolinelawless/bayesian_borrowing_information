@@ -1,20 +1,19 @@
 remove(list = ls())
+mu_all <- list()
+M <- 100 #number of particles
 
-
-M <- 10 #number of particles
-
-
-v1 <- rnorm(5, 1, 1)
-v2 <- rnorm(5, 2, 1)
-v3 <- rnorm(5, 3, 1)
-v4 <- rnorm(5, 4, 1)
-v5 <- rnorm(5, 5, 1)
+v1 <- round(rnorm(5, 1, 1))
+v2 <- round(rnorm(5, 2, 1))
+v3 <- round(rnorm(5, 3, 1))
+v4 <- round(rnorm(5, 4, 1))
+v5 <- round(rnorm(5, 5, 1))
 V <- rbind(v1, v2, v3, v4, v5)
 K <- nrow(V)
 epsilon <- rep(0.5, K)
 
 k = 0
-mu  <- runif(M, 0, 5)
+mu  <- round(runif(M, 0, 5))
+mu_all[[length(mu_all) + 1]] <- mu
 U <- rep(0, M)
 mu_mat <- mu
 U_mat <- U
@@ -23,7 +22,7 @@ while(k < K){
   k <- k+1
   U <- rbinom(M, 1, epsilon[k])
   
-  mu2 <- runif(length(which(U == 0)), 0, 5)
+  mu2 <- round(runif(length(which(U == 0)), 0, 5))
   mu[which(U == 0)] <- mu2
   data <- V[k,]
   w <- vector(length = length(mu))
@@ -42,11 +41,13 @@ while(k < K){
     U_mat <- U_mat[, samp]
     mu <- mu[samp]
     U <- U[samp]
+
   }
-  
+  mu_all[[length(mu_all) + 1]] <- mu
 }
 
 U_mat
 mu_mat
+mu_all
 
 
