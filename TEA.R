@@ -2,17 +2,17 @@ remove(list = ls())
 mu_all <- list()
 M <- 100 #number of particles
 
-v1 <- round(rnorm(5, 1, 1))
-v2 <- round(rnorm(5, 2, 1))
-v3 <- round(rnorm(5, 3, 1))
-v4 <- round(rnorm(5, 4, 1))
-v5 <- round(rnorm(5, 5, 1))
+v1 <- rbinom(1e2, 1, 0.1)
+v2 <- rbinom(1e2, 1, 0.3)
+v3 <- rbinom(1e2, 1, 0.5)
+v4 <- rbinom(1e2, 1, 0.7)
+v5 <- rbinom(1e2, 1, 0.9)
 V <- rbind(v1, v2, v3, v4, v5)
 K <- nrow(V)
 epsilon <- rep(0.5, K)
 
 k = 0
-mu  <- round(runif(M, 0, 5))
+mu  <- rbeta(M, 1, 1)
 mu_all[[length(mu_all) + 1]] <- mu
 U <- rep(0, M)
 mu_mat <- mu
@@ -22,12 +22,13 @@ while(k < K){
   k <- k+1
   U <- rbinom(M, 1, epsilon[k])
   
-  mu2 <- round(runif(length(which(U == 0)), 0, 5))
+  mu2 <- rbeta(length(which(U == 0)), 1, 1)
+
   mu[which(U == 0)] <- mu2
   data <- V[k,]
   w <- vector(length = length(mu))
   for(i in 1:length(mu)){
-    likelihoods <- dnorm(data, mu[i], 1)
+    likelihoods <- dbinom(data, 1, mu[i])
     w[i] <- prod(likelihoods)
   }
   s <- sum(w)
