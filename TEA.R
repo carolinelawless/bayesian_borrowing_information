@@ -1,6 +1,6 @@
 remove(list = ls())
 
-mu_all <- list()
+
 M <- 1e4  #number of particles
 alpha <- beta <- 1 # uninformative prior for the beta
 
@@ -14,8 +14,10 @@ n_versions <- length(params)
 epsilon <- 1
 epsilons <- rep(epsilon, n_versions)
 
-smc_sampler <- function(V, epsilons){
+smc_sampler <- function(params, epsilons){
   
+  
+  mu_all <- list()
   v1 <- rbinom(1e1, 1, params[1])
   v2 <- rbinom(1e1, 1, params[2])
   v3 <- rbinom(1e1, 1, params[3])
@@ -38,11 +40,7 @@ smc_sampler <- function(V, epsilons){
     mu2 <- rbeta(length(which(U == 0)), 1, 1)
     mu[which(U == 0)] <- mu2
     data <- V[k,]
-    w <- vector(length = length(mu))
-    for(i in 1:length(mu)){
-      likelihoods <- dbinom(data, 1, mu[i])
-      w[i] <- prod(likelihoods)
-    }
+    w <- sapply(mu, function(m) prod(dbinom(data, 1, m)))
     s <- sum(w)
     w <- w/s
     ESS <- 1/sum(w^2)
@@ -58,18 +56,19 @@ smc_sampler <- function(V, epsilons){
     }
     mu_all[[length(mu_all) + 1]] <- mu
   }
-  return(mu_all)
+  #return(mu_all)
+  return(list(mu_all = mu_all, V = V))
 }
 
 
-res <- function(V, epsilons, interval, reps, true_response){
+res <- function(params, epsilons, credible_interval, reps, true_response){
   count <- 0
   bias <- vector()
   mse <- vector()
   for(rep in 1:reps){
-    mu_all <- smc_sampler(V, epsilons)
+    mu_all <- smc_sampler(params, epsilons)[[1]]
     posterior_smc <- mu_all[[length(mu_all)]]
-    if(quantile(posterior_smc, interval/2) < true_response & quantile(posterior_smc, 1 - interval/2) > true_response){
+    if(quantile(posterior_smc, (1 - credible_interval)/2) < true_response & quantile(posterior_smc, 1 - (1 - credible_interval)/2) > true_response){
       count <- count + 1
     }
     bias <- c(bias, mean(posterior_smc) - true_response)
@@ -80,13 +79,13 @@ res <- function(V, epsilons, interval, reps, true_response){
   return(list(bias, coverage_rate, mse))
 }
 
-interval <- 0.05
+credible_interval <- 0.95
 reps <- 5e2
 
-result <- res(V, epsilons, interval, reps, true_response)
+result <- res(params, epsilons, credible_interval, reps, true_response)
 bias <- mean(result[[1]]) #-0.196 (epsilon = 1) #-0.037 (epsilon = 0)
-cr <- result[[2]] #0.52 #0.936
-mse <- mean(result[[3]]) #0.048 #0.017
+cr <- result[[2]] #0.52 (epsilon = 1) #0.936 (epsilon = 0)
+mse <- mean(result[[3]]) #0.048 (epsilon = 1) #0.017 (epsilon = 0)
 
 #sanity check
 
