@@ -1,32 +1,16 @@
 remove(list = ls())
 
 
-M <- 1e4  #number of particles
-alpha <- beta <- 1 # uninformative prior for the beta
-
-params <- c(0.3, 0.4, 0.5, 0.6, 0.7)
-true_response <- params[length(params)]
-
-n_versions <- length(params)
-
-
-#K <- n_versions
-epsilon <- 1
-epsilons <- rep(epsilon, n_versions)
-
-smc_sampler <- function(params, epsilons){
+smc_sampler <- function(params, epsilons, M){
   
-  
+  K <- length(params)
   mu_all <- list()
-  v1 <- rbinom(1e1, 1, params[1])
-  v2 <- rbinom(1e1, 1, params[2])
-  v3 <- rbinom(1e1, 1, params[3])
-  v4 <- rbinom(1e1, 1, params[4])
-  v5 <- rbinom(1e1, 1, params[5])
-  V <- rbind(v1, v2, v3, v4, v5)
   
-  K <- nrow(V)
-  k = 0
+  V <- sapply(params, function(p) rbinom(10, 1, p))
+  V <- t(V)
+  
+
+  k = 1
   mu  <- rbeta(M, 1, 1)
   mu_all[[length(mu_all) + 1]] <- mu
   U <- rep(0, M)
@@ -61,12 +45,12 @@ smc_sampler <- function(params, epsilons){
 }
 
 
-res <- function(params, epsilons, credible_interval, reps, true_response){
+res <- function(params, epsilons, credible_interval, reps, true_response, M){
   count <- 0
   bias <- vector()
   mse <- vector()
   for(rep in 1:reps){
-    mu_all <- smc_sampler(params, epsilons)[[1]]
+    mu_all <- smc_sampler(params, epsilons, M)[[1]]
     posterior_smc <- mu_all[[length(mu_all)]]
     if(quantile(posterior_smc, (1 - credible_interval)/2) < true_response & quantile(posterior_smc, 1 - (1 - credible_interval)/2) > true_response){
       count <- count + 1
@@ -79,17 +63,72 @@ res <- function(params, epsilons, credible_interval, reps, true_response){
   return(list(bias, coverage_rate, mse))
 }
 
+
+M <- 1e3  #number of particles
+params <- c(0.3, 0.4, 0.5, 0.6, 0.7)
+true_response <- params[length(params)]
+
+epsilon <- 1
+epsilons <- rep(epsilon, length((params)))
+
 credible_interval <- 0.95
 reps <- 5e2
 
-result <- res(params, epsilons, credible_interval, reps, true_response)
+result <- res(params, epsilons, credible_interval, reps, true_response, M)
 bias <- mean(result[[1]]) #-0.196 (epsilon = 1) #-0.037 (epsilon = 0)
 cr <- result[[2]] #0.52 (epsilon = 1) #0.936 (epsilon = 0)
 mse <- mean(result[[3]]) #0.048 (epsilon = 1) #0.017 (epsilon = 0)
 
+
+
+bias
+cr
+mse
+
+
+#simulations
+
+
+# --- Simulation setup ---
+M <- 1e3
+params <- c(0.3, 0.4, 0.5, 0.6, 0.7)
+true_response <- params[length(params)]
+credible_interval <- 0.95
+reps <- 3e2  # you can increase later
+
+# --- Range of epsilon values to test ---
+eps_grid <- seq(0, 1, by = 0.25)
+
+# --- Run simulation for each epsilon value ---
+library(dplyr)
+
+results <- lapply(eps_grid, function(eps) {
+  epsilons <- rep(eps, length(params))
+  res_out <- res(params, epsilons, credible_interval, reps, true_response, M)
+  data.frame(
+    epsilon = eps,
+    bias = mean(res_out[[1]]),
+    coverage = res_out[[2]],
+    mse = mean(res_out[[3]])
+  )
+})
+
+results_df <- bind_rows(results)
+print(results_df)
+
+
+
+
+
 #sanity check
 
-# Flatten V to get total counts
+
+
+smc_sample <- smc_sampler(params, epsilons, M)
+mu_all <- smc_sample[[1]]
+V <- smc_sample[[2]]
+
+
 V_vec <- as.vector(V)
 n_total <- length(V_vec)
 y_total <- sum(V_vec)
