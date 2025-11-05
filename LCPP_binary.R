@@ -18,6 +18,8 @@ for(j in 1:length(p_hist)){
   y_hist[j, ] <- rbinom(n, 1, p_hist[j])
 }
 
+apply(y_hist, 1, sum)
+
 # Simulate current binary data
 y_current <- rbinom(n, 1, p_current)
 
@@ -71,19 +73,16 @@ model <- jags.model(textConnection(model_string), data = data_jags,
 update(model, 1000)
 samples <- coda.samples(model, variable.names = c("p_current", "p_hist",
                                                   "theta_current", "theta_hist"),
-                        n.iter = 5000)
+                        n.iter = 10000)
 
-summary(samples)
+
 
 samples_mat <- as.matrix(samples)
+
+
+mean(samples_mat[, "p_hist[1]"])
+mean(samples_mat[, "p_hist[2]"])
+mean(samples_mat[, "p_hist[3]"])
+mean(samples_mat[, "p_hist[4]"])
 mean(samples_mat[, "p_current"])
 
-inv_logit <- function(x) {
-  1 / (1 + exp(-x))
-}
-
-inv_logit(mean(samples_mat[,"theta_hist[1]"]))
-inv_logit(mean(samples_mat[,"theta_hist[2]"]))
-inv_logit(mean(samples_mat[,"theta_hist[3]"]))
-inv_logit(mean(samples_mat[,"theta_hist[4]"]))
-inv_logit(mean(samples_mat[,"theta_current"])) #0.781

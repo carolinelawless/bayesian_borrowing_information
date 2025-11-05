@@ -6,7 +6,7 @@ smc_sampler <- function(params, epsilons, M){
   K <- length(params)
   mu_all <- list()
   
-  V <- sapply(params, function(p) rbinom(10, 1, p))
+  V <- sapply(params, function(p) rbinom(100, 1, p))
   V <- t(V)
   
 
@@ -68,7 +68,7 @@ M <- 1e3  #number of particles
 params <- c(0.3, 0.4, 0.5, 0.6, 0.7)
 true_response <- params[length(params)]
 
-epsilon <- 1
+epsilon <- 0
 epsilons <- rep(epsilon, length((params)))
 
 credible_interval <- 0.95
