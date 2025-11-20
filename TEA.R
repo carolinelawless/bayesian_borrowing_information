@@ -98,7 +98,8 @@ smc_sampler <- function(params, M, n){
 
 # ------------- run example --------------
 M <- 1e3  # number of particles
-n <- 5e3 # sample size
+n <- 1e3 # sample size
+
 params <- c(0.3, 0.4, 0.5, 0.6, 0.7)
 params <- rep(0.2, 5)
 result <- smc_sampler(params, M, n)
@@ -111,12 +112,13 @@ epsilons
 
 
 # Example pseudocode for calibration
-simulate_S <- function(params, M, n, n_sim=1000){
+simulate_S <- function(params, M, n, n_sim=500){
   S_vals <- numeric(n_sim)
   for(i in 1:n_sim){
     result <- smc_sampler(params, M, n)
     eps <- result$epsilons[-1] # remove first zero
     S_vals[i] <- sum(eps)
+    print(i)
   }
   return(S_vals)
 }
@@ -130,7 +132,7 @@ params_H1 <- c(0.5, 0.5, 0.5, 0.5, 0.7)  # last dataset different
 S_H1 <- simulate_S(params_H1, M, n)
 
 # You can check how often S_H1 < threshold to estimate power
-
+length(which(S_H1 < threshold))/length(S_H1)
 
 
 
