@@ -2,8 +2,8 @@ remove(list = ls())
 
 print("test1")
 
-setwd("/Users/clawless/Documents/MediTwin/bayesian_borrowing_information")
-#setwd("/home/clawless/simulations/bayesian_borrowing_information")
+#setwd("/Users/clawless/Documents/MediTwin/bayesian_borrowing_information")
+setwd("/home/clawless/simulations/bayesian_borrowing_information")
 
 source("TEA_functions.R")
 
@@ -28,8 +28,8 @@ print("test3")
 params_H1_1 <- c(0.5, 0.55, 0.6, 0.65, 0.7)  # all params different
 S_H1_1_all <- simulate_S(params_H1_1, n, n_sim = nsim)
 S_H1_1 <- S_H1_1_all[[1]]
-# epsilons_H1_1 <- S_H1_1_all[[2]]
-epsilons_H1_1 #0.75, 0.68, 0.65, 0.64
+epsilons_H1_1 <- S_H1_1_all[[2]]
+# epsilons_H1_1 #0.75, 0.68, 0.65, 0.64
 # Check how often S_H1 < threshold to estimate power
 power1 <- length(which(S_H1_1 < threshold))/length(S_H1_1) #0.491 #0.461 0.461
 
