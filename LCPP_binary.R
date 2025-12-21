@@ -5,10 +5,9 @@
 remove(list = ls())
 library(rjags)
 library(coda)
-library(tictoc)
+library(parallel)
 
-params <- (3:7)/10
-n <- 1000
+
 
 
 model_string <- "
@@ -40,15 +39,16 @@ model {
 }
 "
 
-jags_sampler <- function(params, n, model_string){
+#jags_sampler <- function(params, n, model_string){
+jags_sampler <- function(y, n, model_string){
   
-  J <- length(params)
+  J <- nrow(y)
   
-  # --- Simulate data ---
-  y <- matrix(NA, nrow = J, ncol = n)
-  for(j in 1:J){
-    y[j, ] <- rbinom(n, 1, params[j])
-  }
+  # # --- Simulate data ---
+  # y <- matrix(NA, nrow = J, ncol = n)
+  # for(j in 1:J){
+  #   y[j, ] <- rbinom(n, 1, params[j])
+  # }
 
   
   # --- JAGS data list ---
@@ -88,18 +88,31 @@ return(samples_mat)
 
 
 
+# --- Simulate data ---
+params <- rep(0.5, 5)
+J <- length(params)
+n <- 1e2
+y <- matrix(NA, nrow = J, ncol = n)
+
+for(j in 1:J){
+  y[j, ] <- rbinom(n, 1, params[j])
+}
 
 
 
 
 
 
-simulate_S <- function(params, n, n_sim = 10){
+simulate_S <- function(params, n, n_sim = 1e3){
   S_vals <- numeric(n_sim)
   J <- length(params)
   for(i in 1:n_sim){
     print(i)
-    samples_mat <- jags_sampler(params, n, model_string)
+    y <- matrix(NA, nrow = J, ncol = n)
+    for(j in 1:J){
+      y[j, ] <- rbinom(n, 1, params[j])
+    }
+    samples_mat <- jags_sampler(y, n, model_string)
     S <- 0 
     for(j in 2:J){
       S <- S + mean(samples_mat[, paste0("tau[",j,"]")])
@@ -114,56 +127,77 @@ t1 <- proc.time()
 # Simulate under H0 (same params for all datasets)
 S_H0 <- simulate_S(rep(0.5, 5), n)
 threshold <- quantile(S_H0, 0.05)  # 5% quantile for 5% false positive rate
+threshold #20442 21775 17194 1991 (1e3 simulations) 19311 (1e3 sim)
+t2 <- proc.time()
+t2 - t1
+
 
 # Simulate under H1 (last param different)
 params_H1 <- c(0.5, 0.5, 0.5, 0.5, 0.7)  # last dataset different
 S_H1 <- simulate_S(params_H1, n)
 
 # You can check how often S_H1 < threshold to estimate power
-length(which(S_H1 < threshold))/length(S_H1)
+length(which(S_H1 < threshold))/length(S_H1) #0.124 0.132
+t2 <- proc.time()
+t2 - t1
+
+
+# Simulate under H1 
+params_H1 <- c(0.5, 0.56, 0.6, 0.65, 0.7)  
+S_H1 <- simulate_S(params_H1, n)
+
+# You can check how often S_H1 < threshold to estimate power
+length(which(S_H1 < threshold))/length(S_H1) #0.11
+t2 <- proc.time()
+t2 - t1
+
+# Simulate under H1 (last param different)
+params_H1 <- c(0.5, 0.5, 0.5, 0.5, 0.9)  # last dataset different
+S_H1 <- simulate_S(params_H1, n)
+
+# You can check how often S_H1 < threshold to estimate power
+length(which(S_H1 < threshold))/length(S_H1) #0.147 0.141
+t2 <- proc.time()
+t2 - t1
+
+
+# Simulate under H1 
+params_H1 <- c(0.5, 0.6, 0.7, 0.8, 0.9)  
+S_H1 <- simulate_S(params_H1, n)
+
+# You can check how often S_H1 < threshold to estimate power
+length(which(S_H1 < threshold))/length(S_H1) #0.371
 t2 <- proc.time()
 t2 - t1
 
 
 #Bayesian predictive 
 
-predictive_similarity <- function(samples_mat, delta = 0.05, n_pred = 1000) {
-  # samples_mat: the MCMC sample matrix returned by jags_sampler()
-  # delta: similarity tolerance (e.g., 0.05)
-  # n_pred: number of predictive draws to approximate P(similarity)
-  
-  # Extract posterior samples for theta[J]
-  theta_cols <- grep("^theta\\[", colnames(samples_mat))
-  theta_samples <- samples_mat[, theta_cols, drop = FALSE]
-  
-  J <- ncol(theta_samples)  # number of historical datasets
-  
-  theta_1 <- theta_samples[, 1]   # latent parameter for first historical version
-  
-  # Extract tau[J+1] if present, else create a prior for predictive variance
-  tau_cols <- grep("^tau\\[", colnames(samples_mat))
-  tau_samples <- samples_mat[, tau_cols, drop = FALSE]
-  
-  # If your model does NOT include tau[J+1] (e.g., only tau[2:J]),
-  # then use the last tau as commensurate precision for predictive step.
-  tau_for_pred <- tau_samples[, ncol(tau_samples)]
-  
-  # Number of posterior draws
-  S <- length(theta_J)
-  
-  # For posterior predictive, draw theta_{J+1} from:
-  # theta_{J+1} ~ Normal(theta_J, tau_for_pred^{-1})
-  theta_pred <- rnorm(S, mean = theta_J, sd = 1 / sqrt(tau_for_pred))
-  
-  # Convert theta to probabilities
-  p_1     <- plogis(theta_1)
-  p_Jplus <- plogis(theta_pred)
-  
-  # Compute predictive probability of similarity
-  similarity_prob <- mean(abs(p_Jplus - p_1) < delta)
-  
-  return(similarity_prob)
+
+posterior_predictive_diff <- function(samples_mat, n, n_pred = 2e3) {
+  p_cols <- grep("^params\\[", colnames(samples_mat))
+  p_samples <- samples_mat[, p_cols, drop = FALSE]
+  p1 <- p_samples[,1]
+  pK <- p_samples[,ncol(p_samples)]
+  diffs <- numeric(n_pred)
+  for(b in 1:n_pred){
+    
+    p1_samp <- sample(p1, 1)
+    pK_samp <- sample(pK, 1)
+    
+    y1_rep <- rbinom(n, 1, p1_samp)
+    yK_rep <- rbinom(n, 1, pK_samp)
+    diffs[b] <- mean(yK_rep) - mean(y1_rep)
+  }
+  return(diffs)
 }
+
+
+#to do:
+# speed up (parallel? optimise?)
+# write-up results. simulation set-up, scenarios, results, discussion
+
+
 
 
 

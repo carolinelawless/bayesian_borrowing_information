@@ -80,7 +80,7 @@ smc_sampler <- function(V, M = 1e3) {
 }
 
 
-simulate_S <- function(params, n, M = 1e3, n_sim = 5e2){
+simulate_S <- function(params, n, M = 1e3, n_sim = 1e2){
   S_vals <- numeric(n_sim)
   epsilons1 <- matrix(nrow = (length(params) - 1), ncol = n_sim)
   for(i in 1:n_sim){
