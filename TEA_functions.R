@@ -90,7 +90,7 @@ simulate_S <- function(params, n, M = 1e3, n_sim = 1e2){
     eps <- result$epsilons
     S_vals[i] <- sum(eps)
     epsilons1[,i] <- eps
-    print(i)
+    #print(i)
   }
   epsilons2 <- apply(epsilons1, 1, mean)
   return(list(S_vals, epsilons2))
