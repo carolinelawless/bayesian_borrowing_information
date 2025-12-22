@@ -9,7 +9,7 @@ source("TEA_functions.R")
 
 print("test2")
 
-n <- 1e2
+n <- 1e3
 nsim <- 1e3
 
 
