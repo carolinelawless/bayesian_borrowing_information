@@ -25,7 +25,7 @@ type1_error <- length(which(S_H0 < threshold))/length(S_H0)
 
 
 # Simulate under H1 (all params different)
-params_H1_1 <- c(0.5, 0.55, 0.6, 0.65, 0.7)  # all params different
+params_H1_1 <- c(0.5, 0.6, 0.7, 0.8, 0.9)  # all params different
 S_H1_1_all <- simulate_S(params_H1_1, n, n_sim = nsim)
 S_H1_1 <- S_H1_1_all[[1]]
 epsilons_H1_1 <- S_H1_1_all[[2]]
@@ -36,7 +36,7 @@ power1 <- length(which(S_H1_1 < threshold))/length(S_H1_1) #0.491 #0.461 0.461
 
 
 # Simulate under H1 (last param different)
-params_H1_2 <- c(0.5, 0.5, 0.5, 0.5, 0.7)  # last param different
+params_H1_2 <- c(0.5, 0.5, 0.5, 0.5, 0.9)  # last param different
 S_H1_2_all <- simulate_S(params_H1_2, n, n_sim = nsim)
 S_H1_2 <- S_H1_2_all[[1]]
 epsilons_H1_2 <- S_H1_2_all[[2]]
