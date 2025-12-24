@@ -1,5 +1,8 @@
+
+
+
 smc_sampler <- function(V, M = 1e3) {
-  # V: K x n matrix (rows = datasets/versions)
+  # V: list of length K
   # M: number of particles
   
   logsumexp <- function(x){
@@ -7,7 +10,7 @@ smc_sampler <- function(V, M = 1e3) {
     m + log(sum(exp(x - m)))
   }
   
-  K <- nrow(V)
+  K <- length(V)
   mu_all <- vector("list", K)   # store particle populations AFTER resampling (posterior approx)
   w_all  <- vector("list", K)   # store pre-resampling normalized weights
   epsilons <- numeric(K - 1)
@@ -16,7 +19,7 @@ smc_sampler <- function(V, M = 1e3) {
   mu <- rbeta(M, 1, 1)
   
   # ---- process dataset 1 ----
-  data1 <- V[1, ]
+  data1 <- V[[1]]
   n1 <- length(data1)
   s1 <- sum(data1)
   
@@ -36,7 +39,7 @@ smc_sampler <- function(V, M = 1e3) {
   # ---- loop k = 2..K ----
   for (k in 2:K) {
     
-    data_k <- V[k, ]
+    data_k <- V[[k]]
     n_k <- length(data_k)
     s_k <- sum(data_k)
     
@@ -80,12 +83,15 @@ smc_sampler <- function(V, M = 1e3) {
 }
 
 
-simulate_S <- function(params, n, M = 1e3, n_sim = 1e2){
+simulate_S <- function(params, n, M = 1e3, n_sim = 1e2){ #n is a vector of length J
   S_vals <- numeric(n_sim)
   epsilons1 <- matrix(nrow = (length(params) - 1), ncol = n_sim)
+  J <- length(n)
   for(i in 1:n_sim){
-    V <- sapply(params, function(p) rbinom(n, 1, p))
-    V <- t(V)   # now V is K x n (row = dataset)
+    V <- list()
+    for(j in 1:J){
+      V[[j]] <- rbinom(n[j], 1, params[j])
+    }
     result <- smc_sampler(V, M)
     eps <- result$epsilons
     S_vals[i] <- sum(eps)

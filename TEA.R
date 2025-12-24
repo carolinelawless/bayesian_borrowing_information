@@ -1,15 +1,13 @@
 remove(list = ls())
 
-print("test1")
 
 #setwd("/Users/clawless/Documents/MediTwin/bayesian_borrowing_information")
 setwd("/home/clawless/simulations/bayesian_borrowing_information")
 
 source("TEA_functions.R")
 
-print("test2")
-
-n <- 1e3
+J <- 5 #number of versions
+n <- rep(1e2, 5) #number of observations per version
 nsim <- 1e3
 
 
@@ -20,7 +18,7 @@ threshold <- quantile(S_H0, 0.05)  # 5% quantile for 5% false positive rate
 
 
 print(threshold)
-print("test3")
+
 
 
 
@@ -33,7 +31,7 @@ epsilons_H1_1 <- S_H1_1_all[[2]]
 # Check how often S_H1 < threshold to estimate power
 power1 <- length(which(S_H1_1 < threshold))/length(S_H1_1) #0.491 #0.461 0.461
 
-print("test4")
+
 
 # Simulate under H1 (last param different)
 params_H1_2 <- c(0.5, 0.5, 0.5, 0.5, 0.7)  # last param different
@@ -44,7 +42,7 @@ epsilons_H1_2 <- S_H1_2_all[[2]]
 # Check how often S_H1 < threshold to estimate power
 power2 <- length(which(S_H1_2 < threshold))/length(S_H1_2) #0.76 0.723 0.71
 
-print("test5")
+
 
 print(power1)
 print(power2)
