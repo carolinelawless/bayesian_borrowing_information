@@ -7,7 +7,7 @@ setwd("/home/clawless/simulations/bayesian_borrowing_information")
 source("TEA_functions.R")
 
 J <- 5 #number of versions
-n <- rep(1e2, 5) #number of observations per version
+n <- rep(1e1, 5) #number of observations per version
 nsim <- 1e3
 
 
