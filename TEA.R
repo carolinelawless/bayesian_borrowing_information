@@ -11,15 +11,17 @@ n <- rep(1e2, 5) #number of observations per version
 nsim <- 1e3
 
 
-S_H0_all <- simulate_S(rep(0.5, 5), n, n_sim = nsim)
+params_H0 <- rep(0.5, 5)
+S_H0_all <- simulate_S(params_H0, n, n_sim = nsim)
 S_H0 <- S_H0_all[[1]]
 epsilons_H0 <- S_H0_all[[2]]
 threshold <- quantile(S_H0, 0.05)  # 5% quantile for 5% false positive rate
 
 
-print(threshold)
-
-
+# Type 1 error
+S_H0_all <- simulate_S(params_H0, n, n_sim = nsim)
+S_H0 <- S_H0_all[[1]]
+type1_error <- length(which(S_H0 < threshold))/length(S_H0) 
 
 
 # Simulate under H1 (all params different)
@@ -42,10 +44,16 @@ epsilons_H1_2 <- S_H1_2_all[[2]]
 # Check how often S_H1 < threshold to estimate power
 power2 <- length(which(S_H1_2 < threshold))/length(S_H1_2) #0.76 0.723 0.71
 
+print(paste0("n = ", paste(n, collapse = ", ")))
+print(paste0("params H0 = ", paste(params_H0, collapse = ", ")))
+print(paste0("params H1_1 = ", paste(params_H1_1, collapse = ", ")))
+print(paste0("params H1_2 = ", paste(params_H1_2, collapse = ", ")))
 
 
-print(power1)
-print(power2)
+print(paste0("threshold =",threshold))
+print(paste0("type1 error =",type1_error))
+print(paste0("power1 =",power1))
+print(paste0("power2 =",power2))
 
 
 
