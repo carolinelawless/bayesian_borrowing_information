@@ -9,9 +9,9 @@ source("TEA_functions.R")
 
 
 lambda <- 1
-M <- 8000 #number of particles
-a <- 10#beta prior
-b <- 10 #beta prior
+M <- 5000 #number of particles
+a <- 100#beta prior
+b <- 100 #beta prior
 J <- 5 #number of versions
 n <- rep(1e1, 5) #number of observations per version
 nsim <- 1e3 #number of simulations for Monte Carlo S estimate
@@ -21,7 +21,7 @@ params_H0 <- rep(0.5, 5)
 S_H0_all <- simulate_S(params_H0, n, M, nsim, lambda)
 S_H0 <- S_H0_all[[1]]
 epsilons_H0 <- S_H0_all[[2]]
-threshold <- quantile(S_H0, 0.05)  # 5% quantile for 5% false positive rate
+threshold <- quantile(S_H0, 0.10)  # 5% quantile for 5% false positive rate
 
 
 # Type 1 error
