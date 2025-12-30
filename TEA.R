@@ -9,7 +9,7 @@ source("TEA_functions.R")
 
 
 lambda <- 1
-M <- 4000 #number of particles
+M <- 8000 #number of particles
 a <- 10#beta prior
 b <- 10 #beta prior
 J <- 5 #number of versions
