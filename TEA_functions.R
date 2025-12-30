@@ -1,7 +1,7 @@
 
 
 
-smc_sampler <- function(V, M = 1e3) {
+smc_sampler <- function(V, M, lambda) {
   # V: list of length K
   # M: number of particles
   
@@ -16,7 +16,7 @@ smc_sampler <- function(V, M = 1e3) {
   epsilons <- numeric(K - 1)
   
   # initial particles from prior Beta(1,1)
-  mu <- rbeta(M, 1, 1)
+  mu <- rbeta(M, a, b)
   
   # ---- process dataset 1 ----
   data1 <- V[[1]]
@@ -51,7 +51,7 @@ smc_sampler <- function(V, M = 1e3) {
     log_p0 <- lbeta(1 + s_k, 1 + n_k - s_k) - lbeta(1, 1)
     
     # (3) epsilon
-    epsilon <- 1 / (1 + exp(log_p0 - log_pred))
+    epsilon <- 1 / (1 + lambda*exp(log_p0 - log_pred))
     epsilons[k - 1] <- epsilon
     
     # (4) forgetting U
@@ -83,16 +83,16 @@ smc_sampler <- function(V, M = 1e3) {
 }
 
 
-simulate_S <- function(params, n, M = 1e3, n_sim = 1e2){ #n is a vector of length J
-  S_vals <- numeric(n_sim)
-  epsilons1 <- matrix(nrow = (length(params) - 1), ncol = n_sim)
+simulate_S <- function(params, n, M, nsim, lambda){ #n is a vector of length J
+  S_vals <- numeric(nsim)
+  epsilons1 <- matrix(nrow = (length(params) - 1), ncol = nsim)
   J <- length(n)
-  for(i in 1:n_sim){
+  for(i in 1:nsim){
     V <- list()
     for(j in 1:J){
       V[[j]] <- rbinom(n[j], 1, params[j])
     }
-    result <- smc_sampler(V, M)
+    result <- smc_sampler(V, M, lambda)
     eps <- result$epsilons
     S_vals[i] <- sum(eps)
     epsilons1[,i] <- eps
@@ -104,7 +104,7 @@ simulate_S <- function(params, n, M = 1e3, n_sim = 1e2){ #n is a vector of lengt
 
 
 posterior_predictive_diff <- function(smc_out, n, n_pred = 2e3) {
-  # smc_out: output of smc_sampler(V, M)
+  # smc_out: output of smc_sampler(V, M, lambda)
   # n: dataset size (number of observations per version row in V)
   # n_pred: number of posterior predictive replicates
   
