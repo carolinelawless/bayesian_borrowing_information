@@ -13,7 +13,7 @@ M <- 1000 #number of particles
 a <- 100#beta prior
 b <- 100 #beta prior
 J <- 5 #number of versions
-n <- rep(5e1, 5) #number of observations per version
+n <- rep(1e2, 5) #number of observations per version
 nsim <- 1e3 #number of simulations for Monte Carlo S estimate
 
 
