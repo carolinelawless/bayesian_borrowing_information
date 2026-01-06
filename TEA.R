@@ -8,7 +8,7 @@ setwd("/home/clawless/simulations/bayesian_borrowing_information")
 source("TEA_functions.R")
 
 
-lambda <- 3
+lambda <- 1
 M <- 5000 #number of particles
 a <- 100#beta prior
 b <- 100 #beta prior
