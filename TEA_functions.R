@@ -68,15 +68,17 @@ smc_sampler <- function(V, M, lambda) {
     maxll <- max(loglik)
     w <- exp(loglik - maxll)
     w <- w / sum(w)
-    w_all[[k]] <- w                 # STORE pre-resampling weights
+                    
     
     # (7) resample if ESS low
     ESS <- 1 / sum(w^2)
     if (ESS < M/2){
       mu <- mu[sample.int(M, M, replace = TRUE, prob = w)]
+      w <- rep(1/M, M)
     }
     
     mu_all[[k]] <- mu
+    w_all[[k]] <- w 
   }
   
   return(list(mu_all = mu_all, w_all = w_all, epsilons = epsilons, V = V))
@@ -103,10 +105,10 @@ simulate_S <- function(params, n, M, nsim, lambda){ #n is a vector of length J
 }
 
 
-posterior_predictive_diff <- function(smc_out, n, n_pred = 2e3) {
+posterior_predictive_diff <- function(smc_out, npred) {
   # smc_out: output of smc_sampler(V, M, lambda)
   # n: dataset size (number of observations per version row in V)
-  # n_pred: number of posterior predictive replicates
+  # npred: number of posterior predictive replicates
   
   mu_all <- smc_out$mu_all
   w_all  <- smc_out$w_all
@@ -120,8 +122,8 @@ posterior_predictive_diff <- function(smc_out, n, n_pred = 2e3) {
   muK <- mu_all[[K]]
   wK  <- w_all[[K]]
   
-  diffs <- numeric(n_pred)
-  for (b in 1:n_pred) {
+  diffs <- numeric(npred)
+  for (b in 1:npred) {
     # draw a particle index according to pre-resampling posterior weights
     i1 <- sample.int(length(mu1), size = 1, prob = w1)
     iK <- sample.int(length(muK), size = 1, prob = wK)

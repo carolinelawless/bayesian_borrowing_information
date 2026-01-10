@@ -13,7 +13,7 @@ M <- 1000 #number of particles
 a <- 1#beta prior
 b <- 1 #beta prior
 J <- 5 #number of versions
-n <- rep(1e2, 5) #number of observations per version
+n <- rep(1e1, 5) #number of observations per version
 nsim <- 1e3 #number of simulations for Monte Carlo S estimate
 
 
@@ -31,7 +31,7 @@ type1_error <- length(which(S_H0 < threshold))/length(S_H0)
 
 
 # Simulate under H1 (all params different)
-params_H1_1 <- c(0.5, 0.6, 0.7, 0.6, 0.5)  # all params different
+params_H1_1 <- c(0.5, 0.6, 0.7, 0.8, 0.9)  # all params different
 S_H1_1_all <- simulate_S(params_H1_1, n, M, nsim, lambda)
 S_H1_1 <- S_H1_1_all[[1]]
 epsilons_H1_1 <- S_H1_1_all[[2]]
@@ -42,7 +42,7 @@ power1 <- length(which(S_H1_1 < threshold))/length(S_H1_1) #0.491 #0.461 0.461
 
 
 # Simulate under H1 (last param different)
-params_H1_2 <- c(0.5, 0.5, 0.9, 0.5, 0.5)  # last param different
+params_H1_2 <- c(0.5, 0.5, 0.5, 0.5, 0.9)  # last param different
 S_H1_2_all <- simulate_S(params_H1_2, n, M, nsim, lambda)
 S_H1_2 <- S_H1_2_all[[1]]
 epsilons_H1_2 <- S_H1_2_all[[2]]
