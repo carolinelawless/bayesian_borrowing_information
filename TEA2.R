@@ -17,7 +17,7 @@ delta <- 0.2
 V <- list()
 
 for(j in 1:J){
-  V[[j]] <- rbinom(n[j], 1, params2[j])
+  V[[j]] <- rbinom(n[j], 1, params0[j])
 }
 
 smc_out <- smc_sampler(V, M, lambda)
