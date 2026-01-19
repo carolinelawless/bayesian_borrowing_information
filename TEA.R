@@ -4,9 +4,10 @@ remove(list = ls())
 setwd("/Users/clawless/Documents/MediTwin/bayesian_borrowing_information")
 source("TEA_functions.R")
 
-M <- 1e5
-J <- 20
+M <- 1e1 #increase to 1e4
+K <- 2
 
+B <- 1e3
 a_theta <- 1
 b_theta <- 1
 
@@ -14,38 +15,51 @@ a_eps <- 1
 b_eps <- 1
 p_eps <- 0.5
 
+B <- 1e3
+sampsize <- 5e2
+params_H0 <- rep(0.1, K)
 
-n <- rep(1e1, J)
-
-B <- 1e2
-
-
-params_H0 <- rep(0.1, J)
-params_H1 <- c(rep(0.1, (J-1)), 0.4)
+powers_list <- list()
 
 
 
-V_H0 <- list()
-for(j in 1:J){
-  V_H0[[j]] <- rbinom(n[j], 1, params_H0[j])
+for(j in c(1e1, 2e1, 5e1, 1e2, 2e2, 5e2)){
+  print(j)
+  n <- rep(j, K)
+  
+  diffs <- posterior_predictive_sim(params_H0, M, B, sampsize)
+  abs_diffs <- abs(diffs)
+  threshold <- quantile(abs_diffs, 0.95)
+  threshold
+  
+  powers <- vector()
+  for(delta in (0:89)/100){
+    params_H1 <- c(rep(0.1, (K-1)), 0.1 + delta)
+    diffs <- posterior_predictive_sim(params_H1, M, B, sampsize)
+    abs_diffs <- abs(diffs)
+    power <- length(which(abs_diffs >= threshold))/length(abs_diffs)
+    powers <- c(powers, power)
+  }
+  powers
+  powers_list[[length(powers_list)+1]] <- powers
 }
-smc_out_H0 <- smc_sampler(V_H0, M)
 
-V_H1 <- list()
-for(j in 1:J){
-  V_H1[[j]] <- rbinom(n[j], 1, params_H1[j])
-}
-smc_out_H1 <- smc_sampler(V_H1, M)
+print(paste0("M =", M))
+print(paste0("B =", B))
+print(paste0("sampsize =", sampsize))
+print(paste0("K =", K))
 
-mean(smc_out_H1$epsilon_all[[J]])
-mean(smc_out_H0$epsilon_all[[J]])
+print(cat("y_10 <- c(", paste(powers_list[[1]], collapse = ", "), ")\n"))
+print(cat("y_20 <- c(", paste(powers_list[[2]], collapse = ", "), ")\n"))
+print(cat("y_50 <- c(", paste(powers_list[[3]], collapse = ", "), ")\n"))
+print(cat("y_100 <- c(", paste(powers_list[[4]], collapse = ", "), ")\n"))
+print(cat("y_200 <- c(", paste(powers_list[[5]], collapse = ", "), ")\n"))
+print(cat("y_500 <- c(", paste(powers_list[[6]], collapse = ", "), ")\n"))
 
 
-res_H0 <- posterior_predictive_diff(smc_out_H0, B)
-res_H1 <- posterior_predictive_diff(smc_out_H1, B)
 
-mean(res_H0)
-mean(res_H1)
+
+
 
 
 

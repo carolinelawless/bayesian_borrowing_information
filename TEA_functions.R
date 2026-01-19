@@ -38,11 +38,36 @@ smc_sampler <- function(V, M) {
 }
 
 
+posterior_predictive_sim <- function(params, M, B, sampsize){
+  diffs <- vector()
+  for(b in 1:B){
+    V <- list()
+    for(k in 1:K){
+      V[[k]] <- rbinom(n[k], 1, params[k])
+    }
+    smc_out <- smc_sampler(V, M)
+    theta_all <- smc_out$theta_all
+    theta1 <- theta_all[[1]]
+    thetaK <- theta_all[[K]]
+
+    samp1 <- sample(1:M, sampsize, replace = TRUE)
+    sampk <- sample(1:M, sampsize, replace = TRUE)  
+    theta1_samp <- theta1[samp1]
+    thetaK_samp <- thetaK[sampk]
+      
+    y1_samp <- rbinom(sampsize, 1, theta1_samp)
+    yK_samp <- rbinom(sampsize, 1, thetaK_samp)
+      
+    diffs[b] <- mean(yK_samp) - mean(y1_samp)  # e.g. current minus first
+      
+  }
+  return(diffs)
+}
 
 posterior_predictive_diff <- function(smc_out, B) {
   # smc_out: output of smc_sampler(V, M, lambda)
   # n: dataset size (number of observations per version row in V)
-  # npred: number of posterior predictive replicates
+  # sampsize: number of posterior predictive replicates
   
   theta_all <- smc_out$theta_all
 
