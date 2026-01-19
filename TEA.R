@@ -10,7 +10,7 @@ source("TEA_functions.R")
 start_time <- Sys.time()
 
 M <- 1e2 #maybe increase to 1e4
-K <- 2
+K <- 5
 
 B <- 1e3
 a_theta <- 1
@@ -48,7 +48,7 @@ for(j in c(1e1, 2e1, 5e1, 1e2, 2e2, 5e2)){
 }
 
 end_time <- Sys.time()
-elapsed <- start_time - end_time
+elapsed <- round(end_time - start_time, 2)
 
 print(paste0("elapsed time =", elapsed))
 
