@@ -6,7 +6,10 @@ setwd("/home/clawless/simulations/bayesian_borrowing_information")
 
 source("TEA_functions.R")
 
-M <- 1e1 #increase to 1e4
+
+start_time <- Sys.time()
+
+M <- 1e3 #increase to 1e4
 K <- 2
 
 B <- 1e3
@@ -45,6 +48,11 @@ for(j in c(1e1, 2e1, 5e1, 1e2, 2e2, 5e2)){
   powers
   powers_list[[length(powers_list)+1]] <- powers
 }
+
+end_time <- Sys.time()
+elapsed <- start_time - end_time
+
+print(paste0("elapsed time =", elapsed))
 
 print(paste0("M =", M))
 print(paste0("B =", B))
