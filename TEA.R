@@ -9,19 +9,17 @@ source("TEA_functions.R")
 
 start_time <- Sys.time()
 
-M <- 1e3 #increase to 1e4
+M <- 1e2 #maybe increase to 1e4
 K <- 2
 
 B <- 1e3
 a_theta <- 1
 b_theta <- 1
 
-a_eps <- 1
-b_eps <- 1
 p_eps <- 0.5
 
-B <- 1e3
-sampsize <- 5e2
+B <- 1e3 #number of delta estimates
+sampsize <- 5e2 #sample size for the posterior predictives
 params_H0 <- rep(0.1, K)
 
 powers_list <- list()
