@@ -38,7 +38,42 @@ smc_sampler <- function(V, M) {
 }
 
 
-posterior_predictive_sim <- function(params, M, B, sampsize){
+posterior_sim <- function(params, M, B){
+  
+  K <- length(params)
+  
+  # initialize list of theta vectors
+  thetas <- vector("list", K)
+  epsilons <- vector("list", K)
+  
+  for (k in 1:K) {
+    thetas[[k]] <- numeric(0)
+    epsilons[[k]] <- numeric(0)
+  }
+  
+  for (b in 1:B) {
+    
+    V <- vector("list", K)
+    for (k in 1:K) {
+      V[[k]] <- rbinom(n[k], 1, params[k])
+    }
+    
+    smc_out <- smc_sampler(V, M)
+    theta_all <- smc_out$theta_all
+    epsilon_all <- smc_out$epsilon_all
+    
+    for (k in 1:K) {
+      thetas[[k]] <- c(thetas[[k]], mean(theta_all[[k]]))
+      epsilons[[k]] <- c(epsilons[[k]], mean(epsilon_all[[k]]))
+    }
+  }
+  
+  return(list(thetas, epsilons))
+}
+
+
+
+posterior_predictive_sim_diff <- function(params, M, B, sampsize){
   diffs <- vector()
   for(b in 1:B){
     V <- list()
@@ -64,67 +99,10 @@ posterior_predictive_sim <- function(params, M, B, sampsize){
   return(diffs)
 }
 
-posterior_predictive_diff <- function(smc_out, B) {
-  # smc_out: output of smc_sampler(V, M, lambda)
-  # n: dataset size (number of observations per version row in V)
-  # sampsize: number of posterior predictive replicates
-  
-  theta_all <- smc_out$theta_all
-
-  K <- length(theta_all)
-  M <- length(theta_all[[1]])
-
-  theta1 <- theta_all[[1]]
-
-  
-  thetaK <- theta_all[[K]]
-
-  
-  diffs <- numeric(B)
-  for (b in 1:B) {
-    # draw a particle index according to pre-resampling posterior weights
-    samp1 <- sample(1:M, 1, replace = TRUE)
-    sampK <- sample(1:M, 1, replace = TRUE)
-    
-    theta1_samp <- theta1[samp1]
-    thetaK_samp <- thetaK[sampK]
-    
-    y1_rep <- rbinom(n[K], 1, theta1_samp)
-    yK_rep <- rbinom(n[K], 1, thetaK_samp)
-    
-    diffs[b] <- mean(yK_rep) - mean(y1_rep)  # e.g. current minus first
-  }
-  
-  return(diffs)
-}
 
 
 
-# simulate_eps_samples <- function(params, n, M, B){  
-#   J <- length(params)  
-#   epsilons_vector <- vector()
-#   
-#   for(b in 1:B){
-#     print(b)
-#     V <- list()
-#     for(j in 1:J){
-#       V[[j]] <- rbinom(n[j], 1, params[j])
-#     }
-#     
-#     smc_res <- smc_sampler(V, M)
-#     epsilon_all <- smc_res$epsilon_all
-#     w_all <- smc_res$w_all
-#     
-#     epsilons <- epsilon_all[[J]]
-#     weights <- w_all[[J]]
-#     
-#     samp <- sample(epsilons, size = M, replace = TRUE, prob = weights)
-#     epsilons_vector <- c(epsilons_vector, mean(samp))
-#   }
-# 
-#   return(epsilons_vector)
-# 
-# }
+
 
 
 
