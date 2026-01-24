@@ -1,9 +1,10 @@
 ##density plots of posteriors of theta and epsilon at each version
 
 remove(list = ls())
+setwd("/Users/clawless/Documents/MediTwin/bayesian_borrowing_information")
 
 source("TEA_functions.R")
-
+source("TEA_scenarios.R")
 
 
 M <- 1e2
@@ -11,21 +12,14 @@ B <- 1e3 #number of estimates
 
 a_theta <- 1
 b_theta <- 1
-
 p_eps <- 0.5
 
-B <- 1e3 #number of estimates
 
+params <- scenarios[[8]] 
+params <- scenarios[[12]]
+params <- scenarios[[18]]
+params <- scenarios[[25]]
 
-
-
-
-
-params <- c(rep(0.5, 4), 0.1)
-params <- 1:9/10
-#params <- c(0.1, 0.5, 0.1, 0.5, 0.1, 0.5)
-params <- c(0.1, 0.9)
-params <- c(0.1, 0.1, 0.6, 0.1, 0.1)
 K <- length(params)
 
 n <- rep(20, K)
