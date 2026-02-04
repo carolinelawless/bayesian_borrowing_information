@@ -8,7 +8,7 @@ source("TEA_functions.R")
 
 
 
-M <- 1e3
+M <- 1e2
 
 a_theta <- 1
 b_theta <- 1
