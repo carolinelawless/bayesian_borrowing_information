@@ -8,13 +8,13 @@ source("TEA_functions.R")
 
 
 
-M <- 1e2
+M <- 1e3
 
 a_theta <- 1
 b_theta <- 1
 p_eps <- 0.5
 
-B <- 1e4 #number of estimates
+B <- 1e3 #number of estimates
 
 K <- 20
 params <- seq(0.5, 0.8, length.out = K)
