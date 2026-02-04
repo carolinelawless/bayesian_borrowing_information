@@ -1,7 +1,8 @@
 remove(list = ls())
 
 
-setwd("/Users/clawless/Documents/MediTwin/bayesian_borrowing_information")
+#setwd("/Users/clawless/Documents/MediTwin/bayesian_borrowing_information")
+setwd("/home/clawless/simulations/bayesian_borrowing_information")
 source("TEA_functions.R")
 #source("TEA_scenarios.R")
 
@@ -79,6 +80,9 @@ params <- seq(0.5, 0.8, length.out = K)
 x <- 1:50
 naive_stops <- vector()
 tea_stops <- vector()
+
+start_time <- Sys.time()
+
 for(lambda in x){
   print(lambda)
   naive <- naive_stopping_decision(params, lambda, M, B)
@@ -87,6 +91,10 @@ for(lambda in x){
   tea_stops <- c(tea_stops, tea)
 }
 
+end_time <- Sys.time()
+time_taken <- end_time - start_time
+
+print(paste0("time taken = ", time_taken))
 print(paste0("M =", M))
 print(paste0("B =", B))
 print(paste0("lambdas <- c(", paste(x, collapse = ", "), ")"))
