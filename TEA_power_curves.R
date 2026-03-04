@@ -1,6 +1,6 @@
 remove(list = ls())
-setwd("/Users/clawless/Documents/MediTwin/bayesian_borrowing_information")
-
+#setwd("/Users/clawless/Documents/MediTwin/bayesian_borrowing_information")
+setwd("/home/clawless/simulations/bayesian_borrowing_information")
 source("TEA_functions.R")
 
 
