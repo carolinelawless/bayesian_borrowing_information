@@ -248,15 +248,18 @@ plot_trajectories <- function(thetas, epsilons, params) {
   
 }
 
-plot_power_curves_binomial <- function(params1,
-                                       params2,
-                                       label1,
-                                       label2,
-                                       lambdas,
-                                       threshold,
-                                       M, B,
-                                       a_theta, b_theta,
-                                       p_eps) {
+
+
+
+
+
+compute_power_binomial <- function(params1,
+                                   params2,
+                                   lambdas,
+                                   threshold,
+                                   M, B,
+                                   a_theta, b_theta,
+                                   p_eps) {
   
   power1 <- numeric(length(lambdas))
   power2 <- numeric(length(lambdas))
@@ -264,60 +267,35 @@ plot_power_curves_binomial <- function(params1,
   for (i in seq_along(lambdas)) {
     
     lambda <- lambdas[i]
-    #cat("Lambda index:", i, "\n")
     
     # Scenario 1
     res1 <- posterior_sim_binomial(params1, M, B,
                                    lambda, a_theta,
                                    b_theta, p_eps)
     
-    diffs1 <- res1$diffs
-    power1[i] <- mean(diffs1 > threshold)
+    power1[i] <- mean(res1$diffs > threshold)
     
     # Scenario 2
     res2 <- posterior_sim_binomial(params2, M, B,
                                    lambda, a_theta,
                                    b_theta, p_eps)
     
-    diffs2 <- res2$diffs
-    power2[i] <- mean(diffs2 > threshold)
+    power2[i] <- mean(res2$diffs > threshold)
   }
-  
-  # ---- Plot ----
-  
-  plot(lambdas, power1,
-       type = "l",
-       lwd = 2,
-       col = "blue",
-       ylim = c(0,1),
-       xlab = expression(lambda),
-       ylab = "Power")
-  
-  lines(lambdas, power2,
-        lwd = 2,
-        col = "red")
-  
-  legend("bottomright",
-         legend = c(label1, label2),
-         col = c("blue", "red"),
-         lwd = 2,
-         bty = "n")
   
   return(list(power1 = power1,
               power2 = power2))
 }
 
 
-plot_power_curves_gaussian <- function(params1,
-                                       params2,
-                                       label1,
-                                       label2,
-                                       lambdas,
-                                       threshold,
-                                       M, B,
-                                       mean_theta, sd_theta,
-                                       sigma,
-                                       p_eps) {
+compute_power_gaussian <- function(params1,
+                                   params2,
+                                   lambdas,
+                                   threshold,
+                                   M, B,
+                                   mean_theta, sd_theta,
+                                   sigma,
+                                   p_eps) {
   
   power1 <- numeric(length(lambdas))
   power2 <- numeric(length(lambdas))
@@ -325,7 +303,6 @@ plot_power_curves_gaussian <- function(params1,
   for (i in seq_along(lambdas)) {
     
     lambda <- lambdas[i]
-    cat("Lambda index:", i, "\n")
     
     # Scenario 1
     res1 <- posterior_sim_gaussian(params1, M, B,
@@ -334,8 +311,7 @@ plot_power_curves_gaussian <- function(params1,
                                    sigma,
                                    p_eps)
     
-    diffs1 <- res1$diffs
-    power1[i] <- mean(diffs1 > threshold)
+    power1[i] <- mean(res1$diffs > threshold)
     
     # Scenario 2
     res2 <- posterior_sim_gaussian(params2, M, B,
@@ -344,11 +320,19 @@ plot_power_curves_gaussian <- function(params1,
                                    sigma,
                                    p_eps)
     
-    diffs2 <- res2$diffs
-    power2[i] <- mean(diffs2 > threshold)
+    power2[i] <- mean(res2$diffs > threshold)
   }
   
-  # ---- Plot ----
+  return(list(power1 = power1,
+              power2 = power2))
+}
+
+
+plot_power_curves <- function(lambdas,
+                              power1,
+                              power2,
+                              label1,
+                              label2) {
   
   plot(lambdas, power1,
        type = "l",
@@ -367,10 +351,9 @@ plot_power_curves_gaussian <- function(params1,
          col = c("blue", "red"),
          lwd = 2,
          bty = "n")
-  
-  return(list(power1 = power1,
-              power2 = power2))
 }
+
+
 
 
 

@@ -6,7 +6,7 @@ source("TEA_functions.R")
 start_time <- Sys.time()
 
 M <- 100
-B <- 1000
+B <- 100
 lambda <- 9
 
 params0 <- rep(0.7, 20)
@@ -44,11 +44,9 @@ lambdas <- 1:50 * 4
 
 
 
-out_binomial <- plot_power_curves_binomial(
+out_binomial <- compute_power_binomial(
   params_gradual,
   params_jump,
-  label1 = "Gradual drift",
-  label2 = "Abrupt drift (last version)",
   lambdas,
   threshold_binomial,
   M, B,
@@ -60,11 +58,9 @@ p1_binomial <- out_binomial$power1
 p2_binomial <- out_binomial$power2
 
 
-out_gaussian <- plot_power_curves_gaussian(
+out_gaussian <- compute_power_gaussian(
   params_gradual,
   params_jump,
-  label1 = "Gradual drift",
-  label2 = "Abrupt drift",
   lambdas,
   threshold_gaussian,
   M, B,
@@ -81,6 +77,15 @@ p2_gaussian <- out_gaussian$power2
 end_time <- Sys.time()
 
 paste0("time elapsed =", end_time - start_time)
+paste0("M =", M)
+paste0("B = ", B)
+paste0("a_theta =", a_theta)
+paste0("b_theta =", b_theta)
+paste0("mean_theta =", mean_theta)
+paste0("sd_theta =", sd_theta)
+paste0("sigma =", sigma)
+paste0("p_eps =", p_eps)
+
 
 paste0("threshold_binomial <-", threshold_binomial)
 cat("p1_binomial <- c(", paste(p1_binomial, collapse = ", "), ")\n")
