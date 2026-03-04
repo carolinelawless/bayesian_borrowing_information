@@ -1,198 +1,377 @@
-smc_sampler <- function(V, M) {
-  # V: list observations of length K
+smc_sampler_gaussian <- function(V, M, mean_theta, sd_theta, sigma, p_eps) {
+  # V: list of length K, continuous observations
   # M: number of particles
+  # mean_theta, sd_theta: prior mean and sd for theta
+  # sigma: known standard deviation of observations
+  # p_eps: prior probability of borrowing
   
   K <- length(V)
-  theta_all <- list(K)   
-  epsilon_all <- list(K)
+  theta_all <- vector("list", K)
+  epsilon_all <- vector("list", K)
   
-  theta <- rbeta(M, a_theta, b_theta)
-
+  # Initial particles for first version
+  theta <- rnorm(M, mean = mean_theta, sd = sd_theta)
   
   for (k in 1:K) {
+    data1 <- V[[k]]
     
     if (k > 1) {
       epsilon <- rbinom(M, 1, p_eps)
       ind <- which(epsilon == 0)
-      theta[ind] <- rbeta(length(ind), a_theta, b_theta)
-     
+      theta[ind] <- rnorm(length(ind), mean = mean_theta, sd = sd_theta)
     } else {
-      epsilon <- rep(NA, M)
+      epsilon <- rep(NA, M)  # no borrowing for first version
     }
     
-    # epsilon <- rbinom(M, 1, p_eps)
-    # ind <- which(epsilon == 0)
-    # theta[ind] <- rbeta(length(ind), a_theta, b_theta)
+    # Gaussian log-likelihoods
+    logliks <- sapply(theta, function(theta_j) {
+      sum(dnorm(data1, mean = theta_j, sd = sigma, log = TRUE))
+    })
     
-    data1 <- V[[k]]
-    n1 <- length(data1)
-    s1 <- sum(data1)
-    
-
-    logliks <- dbinom(s1, n1, theta, log = TRUE)
-    
+    # Normalize weights
     maxll <- max(logliks)
     w <- exp(logliks - maxll)
     w <- w / sum(w)
     
+    # Resample
     samp <- sample(1:M, M, replace = TRUE, prob = w)
     theta <- theta[samp]
     epsilon <- epsilon[samp]
     
-    
     theta_all[[k]] <- theta
     epsilon_all[[k]] <- epsilon
-}
+  }
   
   return(list(theta_all = theta_all, epsilon_all = epsilon_all))
 }
 
 
 
+smc_sampler_binomial <- function(V, M, a_theta, b_theta, p_eps) {
+  # V: list of length K, continuous observations
+  # M: number of particles
+  # a_theta, b_theta: prior beta parameters for theta
+  # p_eps: prior probability of borrowing
+  
+  K <- length(V)
+  theta_all <- vector("list", K)
+  epsilon_all <- vector("list", K)
+  
+  # Initial particles for first version
+  theta <- rbeta(M, a_theta, b_theta)
 
-posterior_sim <- function(params, M, B, lambda){
+  
+  for (k in 1:K) {
+    data1 <- V[[k]]
+    
+    if (k > 1) {
+      epsilon <- rbinom(M, 1, p_eps)
+      ind <- which(epsilon == 0)
+      theta[ind] <- rbeta(length(ind), a_theta, b_theta)
+    } else {
+      epsilon <- rep(NA, M)  # no borrowing for first version
+    }
+    
+    
+    
+  # Binomial log-likelihoods
+    
+    data1 <- V[[k]]
+    n1 <- length(data1)
+    s1 <- sum(data1)
+    
+    
+    logliks <- dbinom(s1, n1, theta, log = TRUE)
+    
+
+    
+    # Normalize weights
+    maxll <- max(logliks)
+    w <- exp(logliks - maxll)
+    w <- w / sum(w)
+    
+    # Resample
+    samp <- sample(1:M, M, replace = TRUE, prob = w)
+    theta <- theta[samp]
+    epsilon <- epsilon[samp]
+    
+    theta_all[[k]] <- theta
+    epsilon_all[[k]] <- epsilon
+  }
+  
+  return(list(theta_all = theta_all, epsilon_all = epsilon_all))
+}
+
+
+posterior_sim_gaussian <- function(params, M, B, lambda, mean_theta, sd_theta, sigma, p_eps) {
+  # params: true theta values for each version
+  # M: number of particles in SMC
+  # B: number of simulations
+  # n: vector of sample sizes per version
+  # mean_theta, sd_theta: prior for theta
+  # sigma: SD of continuous observations
+  # p_eps: prior probability of borrowing
   
   K <- length(params)
   
-  # initialize list of theta vectors
+  # initialize lists to store simulated estimates
   thetas <- vector("list", K)
   epsilons <- vector("list", K)
+  diffs <- numeric(B)
   
   for (k in 1:K) {
     thetas[[k]] <- numeric(0)
     epsilons[[k]] <- numeric(0)
   }
   
+  n <- vector(length = K)
   for (b in 1:B) {
+    # simulate data for this iteration
+    n <- rpois(K, lambda) + 1
+    V <- lapply(1:K, function(k) rnorm(n[k], mean = params[k], sd = sigma))
     
-    n <- rpois(K, lambda) +1
+    # run SMC for Gaussian model
+    smc_out <- smc_sampler_gaussian(V, M, mean_theta, sd_theta, sigma, p_eps)
+    theta_all <- smc_out$theta_all
+    epsilon_all <- smc_out$epsilon_all
+    
+    theta1 <- theta_all[[1]]
+    thetaK <- theta_all[[K]]
+    diffs[b] <- abs(mean(thetaK) - mean(theta1))
+    
+    for (k in 1:K) {
+      # store estimates; you can switch between mean, MAP, or BMA
+      thetas[[k]] <- c(thetas[[k]], mean(theta_all[[k]]))
+      epsilons[[k]] <- c(epsilons[[k]], mean(epsilon_all[[k]], na.rm = TRUE))
+    }
+  }
+  
+  return(list(thetas = thetas, epsilons = epsilons, diffs = diffs))
+}
+
+
+posterior_sim_binomial <- function(params, M, B, lambda, a_theta, b_theta, p_eps) {
+  # params: true theta values for each version
+  # M: number of particles in SMC
+  # B: number of simulations
+  # n: vector of sample sizes per version
+  # a_theta, b_theta: Beta prior for theta
+  # p_eps: prior probability of borrowing
+  
+  K <- length(params)
+  
+  # initialize lists to store simulated estimates
+  thetas <- vector("list", K)
+  epsilons <- vector("list", K)
+  diffs <- numeric(B)
+  
+  for (k in 1:K) {
+    thetas[[k]] <- numeric(0)
+    epsilons[[k]] <- numeric(0)
+  }
+  
+  n <- vector(length = K)
+  for (b in 1:B) {
+    # simulate data for this iteration
+    n <- rpois(K, lambda) + 1
     
     V <- vector("list", K)
     for (k in 1:K) {
       V[[k]] <- rbinom(n[k], 1, params[k])
     }
     
-    smc_out <- smc_sampler(V, M)
+    # run SMC for Gaussian model
+    smc_out <- smc_sampler_binomial(V, M, a_theta, b_theta, p_eps)
     theta_all <- smc_out$theta_all
     epsilon_all <- smc_out$epsilon_all
     
-    ##here
-    estimates <- param_estimates(theta_all, M)
-    theta_map <- estimates[[1]]
-    theta_bma <- estimates[[2]]
+    theta1 <- theta_all[[1]]
+    thetaK <- theta_all[[K]]
+    diffs[b] <- abs(mean(thetaK) - mean(theta1))
     
     for (k in 1:K) {
-      #thetas[[k]] <- c(thetas[[k]], mean(theta_all[[k]]))
-      #thetas[[k]] <- c(thetas[[k]], theta_map[k])
-      thetas[[k]] <- c(thetas[[k]], theta_bma[k])
-      epsilons[[k]] <- c(epsilons[[k]], mean(epsilon_all[[k]]))
+      # store estimates; you can switch between mean, MAP, or BMA
+      thetas[[k]] <- c(thetas[[k]], mean(theta_all[[k]]))
+      epsilons[[k]] <- c(epsilons[[k]], mean(epsilon_all[[k]], na.rm = TRUE))
     }
   }
   
-  return(list(thetas, epsilons))
+  return(list(thetas = thetas, epsilons = epsilons, diffs = diffs))
 }
 
 
-naive_diff <- function(params, lambda, M, B){
+
+plot_trajectories <- function(thetas, epsilons, params) {
   
-  K <- length(params)
-  diffs <- numeric(B)
+  K <- length(thetas)
+  x <- 1:K
+  x_eps <- x - 0.1   # shift epsilon to the left
   
-  for(b in 1:B){
-    n <- rpois(K, lambda) + 1
+  # Summaries
+  means_theta <- sapply(thetas, mean, na.rm = TRUE)
+  q10_theta   <- sapply(thetas, quantile, probs = 0.1, na.rm = TRUE)
+  q90_theta   <- sapply(thetas, quantile, probs = 0.9, na.rm = TRUE)
+  
+  eps_means <- sapply(epsilons, mean, na.rm = TRUE)
+  eps_q10   <- sapply(epsilons, quantile, probs = 0.1, na.rm = TRUE)
+  eps_q90   <- sapply(epsilons, quantile, probs = 0.9, na.rm = TRUE)
+  
+  # Base plot for theta
+  plot(x, means_theta,
+       ylim = c(0, 1),
+       pch = 16, col = "black",
+       ylab = "Parameter value",
+       xlab = "version",
+       xaxt = "n")
+  axis(1, at = x, labels = x)
+  
+  # Theta CI
+  arrows(x, q10_theta, x, q90_theta,
+         angle = 90, code = 3, length = 0.05)
+  
+  # True theta
+  points(x, params, pch = 16, col = rgb(0,0,1,0.4), cex = 1.8)
+  
+  # Epsilon means (shifted)
+  points(x_eps[-1], eps_means[-1], pch = 4, col = "red", cex = 1.2)
+  
+  # Epsilon CI (shifted)
+  arrows(x_eps[-1], eps_q10[-1], x_eps[-1], eps_q90[-1],
+         angle = 90, code = 3, length = 0.05, col = "red")
+  
+  # Legend
+  legend("topright",
+         legend = c("theta posterior mean", "true theta", "epsilon posterior mean"),
+         pch = c(16, 16, 4),
+         col = c("black", rgb(0,0,1,0.4), "red"),
+         bty = "n")
+  
+}
+
+plot_power_curves_binomial <- function(params1,
+                                       params2,
+                                       label1,
+                                       label2,
+                                       lambdas,
+                                       threshold,
+                                       M, B,
+                                       a_theta, b_theta,
+                                       p_eps) {
+  
+  power1 <- numeric(length(lambdas))
+  power2 <- numeric(length(lambdas))
+  
+  for (i in seq_along(lambdas)) {
     
-    s1 <- sum(rbinom(n[1], 1, params[1]))
-    sK <- sum(rbinom(n[K], 1, params[K]))
+    lambda <- lambdas[i]
+    cat("Lambda index:", i, "\n")
     
-    theta1 <- rbeta(M, a_theta + s1, b_theta + n[1] - s1)
-    thetaK <- rbeta(M, a_theta + sK, b_theta + n[K] - sK)
-    #diffs[b] <- abs(mean(thetaK) - mean(theta1))
-    delta <- thetaK - theta1
-    diffs[b] <- mean(delta) / sd(delta)
+    # Scenario 1
+    res1 <- posterior_sim_binomial(params1, M, B,
+                                   lambda, a_theta,
+                                   b_theta, p_eps)
     
+    diffs1 <- res1$diffs
+    power1[i] <- mean(diffs1 > threshold)
     
+    # Scenario 2
+    res2 <- posterior_sim_binomial(params2, M, B,
+                                   lambda, a_theta,
+                                   b_theta, p_eps)
+    
+    diffs2 <- res2$diffs
+    power2[i] <- mean(diffs2 > threshold)
   }
   
-  return(diffs)
-}
-
-
-tea_diff_mean <- function(params, lambda, M, B) {
-  K <- length(params)
-  diffs <- numeric(B)
+  # ---- Plot ----
   
-  for (b in 1:B) {
-    n <- rpois(K, lambda) + 1
+  plot(lambdas, power1,
+       type = "l",
+       lwd = 2,
+       col = "blue",
+       ylim = c(0,1),
+       xlab = expression(lambda),
+       ylab = "Power")
+  
+  lines(lambdas, power2,
+        lwd = 2,
+        col = "red")
+  
+  legend("bottomright",
+         legend = c(label1, label2),
+         col = c("blue", "red"),
+         lwd = 2,
+         bty = "n")
+  
+  return(list(power1 = power1,
+              power2 = power2))
+}
+
+
+plot_power_curves_gaussian <- function(params1,
+                                       params2,
+                                       label1,
+                                       label2,
+                                       lambdas,
+                                       threshold,
+                                       M, B,
+                                       mean_theta, sd_theta,
+                                       sigma,
+                                       p_eps) {
+  
+  power1 <- numeric(length(lambdas))
+  power2 <- numeric(length(lambdas))
+  
+  for (i in seq_along(lambdas)) {
     
-    V <- lapply(1:K, function(k) rbinom(n[k], 1, params[k]))
-    smc_out <- smc_sampler(V, M)
-    theta1 <- smc_out$theta_all[[1]]
-    thetaK <- smc_out$theta_all[[K]]
+    lambda <- lambdas[i]
+    cat("Lambda index:", i, "\n")
     
-    #diffs[b] <- abs(mean(thetaK) - mean(theta1))   # posterior means of particles
-    delta <- thetaK - theta1
-    diffs[b] <- mean(delta) / sd(delta)
+    # Scenario 1
+    res1 <- posterior_sim_gaussian(params1, M, B,
+                                   lambda,
+                                   mean_theta, sd_theta,
+                                   sigma,
+                                   p_eps)
     
+    diffs1 <- res1$diffs
+    power1[i] <- mean(diffs1 > threshold)
     
+    # Scenario 2
+    res2 <- posterior_sim_gaussian(params2, M, B,
+                                   lambda,
+                                   mean_theta, sd_theta,
+                                   sigma,
+                                   p_eps)
+    
+    diffs2 <- res2$diffs
+    power2[i] <- mean(diffs2 > threshold)
   }
   
-  return(diffs)
+  # ---- Plot ----
+  
+  plot(lambdas, power1,
+       type = "l",
+       lwd = 2,
+       col = "blue",
+       ylim = c(0,1),
+       xlab = expression(lambda),
+       ylab = "Power")
+  
+  lines(lambdas, power2,
+        lwd = 2,
+        col = "red")
+  
+  legend("bottomright",
+         legend = c(label1, label2),
+         col = c("blue", "red"),
+         lwd = 2,
+         bty = "n")
+  
+  return(list(power1 = power1,
+              power2 = power2))
 }
 
 
-
-
-naive_stopping_decision <- function(params, lambda, M, B){
-  k <- 1
-  new_trial <- 0
-  while(new_trial == 0 & k < length(params)){
-    k <- k+1
-    params_subset <- params[1:k]
-    diffs <- naive_diff(params_subset, lambda, M, B)
-    if(sum(diffs > 0.2)/length(diffs) > 0.8 ){
-      new_trial <- 1
-    }
-  }
-  k
-  return(k)
-}
-
-
-tea_stopping_decision <- function(params, lambda, M, B){
-  k <- 1
-  new_trial <- 0
-  while(new_trial == 0 & k < length(params)){
-    k <- k+1
-    params_subset <- params[1:k]
-    diffs <- tea_diff_mean(params_subset, lambda, M, B)
-    diffs <- diffs[!is.nan(diffs)]
-    if(sum(diffs > 0.2)/length(diffs) > 0.8 ){
-      new_trial <- 1
-    }
-  }
-  k
-  return(k)
-}
-
-
-param_estimates <- function(theta_all, M){
-  K <- length(theta_all)
-  grid <- 1:100/100  # 10 points from 0 to 1
-  h <- 0.02  # bandwidth for kernel
-  theta_map <- vector(length = K)
-  theta_bma <- vector(length = K)
-  for(k in 1:K){
-    theta_k <- theta_all[[k]]
-    
-    grid_weights <- sapply(grid, function(g) {
-      sum(dnorm(g - theta_k, mean = 0, sd = h))
-    })
-    grid_weights <- grid_weights / sum(grid_weights)
-    theta_map[k] <- grid[which.max(grid_weights)]
-    top_idx <- order(grid_weights, decreasing = TRUE)[1:ceiling(0.1*length(grid))]
-    theta_bma[k] <- sum(grid_weights[top_idx] * grid[top_idx]) / sum(grid_weights[top_idx])
-  }
-  return(list(theta_map, theta_bma))
-}
 
 
