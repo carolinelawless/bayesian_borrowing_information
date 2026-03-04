@@ -3,9 +3,10 @@ remove(list = ls())
 setwd("/home/clawless/simulations/bayesian_borrowing_information")
 source("TEA_functions.R")
 
+start_time <- Sys.time()
 
-M <- 50
-B <- 10
+M <- 100
+B <- 1000
 lambda <- 9
 
 params0 <- rep(0.7, 20)
@@ -76,6 +77,10 @@ out_gaussian <- plot_power_curves_gaussian(
 p1_gaussian <- out_gaussian$power1
 p2_gaussian <- out_gaussian$power2
 
+
+end_time <- Sys.time()
+
+paste0("time elapsed =", end_time - start_time)
 
 paste0("threshold_binomial <-", threshold_binomial)
 cat("p1_binomial <- c(", paste(p1_binomial, collapse = ", "), ")\n")

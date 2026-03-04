@@ -264,7 +264,7 @@ plot_power_curves_binomial <- function(params1,
   for (i in seq_along(lambdas)) {
     
     lambda <- lambdas[i]
-    cat("Lambda index:", i, "\n")
+    #cat("Lambda index:", i, "\n")
     
     # Scenario 1
     res1 <- posterior_sim_binomial(params1, M, B,
