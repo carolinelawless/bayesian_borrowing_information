@@ -8,12 +8,14 @@ smc_sampler <- function(V, M) {
   
   theta <- rbeta(M, a_theta, b_theta)
 
+  
   for (k in 1:K) {
     
     if (k > 1) {
       epsilon <- rbinom(M, 1, p_eps)
       ind <- which(epsilon == 0)
       theta[ind] <- rbeta(length(ind), a_theta, b_theta)
+     
     } else {
       epsilon <- rep(NA, M)
     }
@@ -46,7 +48,9 @@ smc_sampler <- function(V, M) {
 }
 
 
-posterior_sim <- function(params, M, B){
+
+
+posterior_sim <- function(params, M, B, lambda){
   
   K <- length(params)
   
@@ -61,6 +65,8 @@ posterior_sim <- function(params, M, B){
   
   for (b in 1:B) {
     
+    n <- rpois(K, lambda) +1
+    
     V <- vector("list", K)
     for (k in 1:K) {
       V[[k]] <- rbinom(n[k], 1, params[k])
@@ -70,8 +76,15 @@ posterior_sim <- function(params, M, B){
     theta_all <- smc_out$theta_all
     epsilon_all <- smc_out$epsilon_all
     
+    ##here
+    estimates <- param_estimates(theta_all, M)
+    theta_map <- estimates[[1]]
+    theta_bma <- estimates[[2]]
+    
     for (k in 1:K) {
-      thetas[[k]] <- c(thetas[[k]], mean(theta_all[[k]]))
+      #thetas[[k]] <- c(thetas[[k]], mean(theta_all[[k]]))
+      #thetas[[k]] <- c(thetas[[k]], theta_map[k])
+      thetas[[k]] <- c(thetas[[k]], theta_bma[k])
       epsilons[[k]] <- c(epsilons[[k]], mean(epsilon_all[[k]]))
     }
   }
@@ -152,6 +165,7 @@ tea_stopping_decision <- function(params, lambda, M, B){
     k <- k+1
     params_subset <- params[1:k]
     diffs <- tea_diff_mean(params_subset, lambda, M, B)
+    diffs <- diffs[!is.nan(diffs)]
     if(sum(diffs > 0.2)/length(diffs) > 0.8 ){
       new_trial <- 1
     }
@@ -159,4 +173,26 @@ tea_stopping_decision <- function(params, lambda, M, B){
   k
   return(k)
 }
+
+
+param_estimates <- function(theta_all, M){
+  K <- length(theta_all)
+  grid <- 1:100/100  # 10 points from 0 to 1
+  h <- 0.02  # bandwidth for kernel
+  theta_map <- vector(length = K)
+  theta_bma <- vector(length = K)
+  for(k in 1:K){
+    theta_k <- theta_all[[k]]
+    
+    grid_weights <- sapply(grid, function(g) {
+      sum(dnorm(g - theta_k, mean = 0, sd = h))
+    })
+    grid_weights <- grid_weights / sum(grid_weights)
+    theta_map[k] <- grid[which.max(grid_weights)]
+    top_idx <- order(grid_weights, decreasing = TRUE)[1:ceiling(0.1*length(grid))]
+    theta_bma[k] <- sum(grid_weights[top_idx] * grid[top_idx]) / sum(grid_weights[top_idx])
+  }
+  return(list(theta_map, theta_bma))
+}
+
 
