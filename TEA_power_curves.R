@@ -5,7 +5,7 @@ source("TEA_functions.R")
 
 start_time <- Sys.time()
 
-M <- 100
+M <- 500
 B <- 1000
 lambda <- 9
 
