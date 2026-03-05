@@ -5,9 +5,9 @@ source("TEA_functions.R")
 
 start_time <- Sys.time()
 
-M <- 500
-B <- 1000
-lambda <- 9
+M <- 100
+B <- 10
+lambda <- 49
 
 params0 <- rep(0.7, 20)
 
@@ -39,14 +39,15 @@ threshold_gaussian
 
 params_gradual <- seq(0.6, 0.9, length = 20)
 params_jump    <- c(rep(0.6, 19), 0.9)
+params_drift <- c(seq(0.6, 0.9, length = 10), seq(0.9, 0.6, length = 10))
+params_stable <- rep(0.7, 20)
+
+params_list <- list(params_gradual, params_jump, params_drift, params_stable)
 
 lambdas <- 1:50 * 4
 
-
-
 out_binomial <- compute_power_binomial(
-  params_gradual,
-  params_jump,
+  params_list,
   lambdas,
   threshold_binomial,
   M, B,
@@ -54,13 +55,17 @@ out_binomial <- compute_power_binomial(
   p_eps
 )
 
-p1_binomial <- out_binomial$power1
-p2_binomial <- out_binomial$power2
+
+p_binomial_gradual <- out_binomial[[1]]
+p_binomial_jump <- out_binomial[[2]]
+p_binomial_drift <- out_binomial[[3]]
+p_binomial_stable <- out_binomial[[4]]
+
+
 
 
 out_gaussian <- compute_power_gaussian(
-  params_gradual,
-  params_jump,
+  params_list,
   lambdas,
   threshold_gaussian,
   M, B,
@@ -70,9 +75,10 @@ out_gaussian <- compute_power_gaussian(
 )
 
 
-p1_gaussian <- out_gaussian$power1
-p2_gaussian <- out_gaussian$power2
-
+p_gaussian_gradual <- out_gaussian[[1]]
+p_gaussian_jump <- out_gaussian[[2]]
+p_gaussian_drift <- out_gaussian[[3]]
+p_gaussian_stable <- out_gaussian[[4]]
 
 end_time <- Sys.time()
 
@@ -88,9 +94,13 @@ paste0("p_eps =", p_eps)
 
 
 paste0("threshold_binomial <-", threshold_binomial)
-cat("p1_binomial <- c(", paste(p1_binomial, collapse = ", "), ")\n")
-cat("p2_binomial <- c(", paste(p2_binomial, collapse = ", "), ")\n")
+cat("p_binomial_gradual <- c(", paste(p_binomial_gradual, collapse = ", "), ")\n")
+cat("p_binomial_jump <- c(", paste(p_binomial_jump, collapse = ", "), ")\n")
+cat("p_binomial_drift <- c(", paste(p_binomial_drift, collapse = ", "), ")\n")
+cat("p_binomial_stable <- c(", paste(p_binomial_stable, collapse = ", "), ")\n")
 
 paste0("threshold_gaussian <-", threshold_gaussian)
-cat("p1_gaussian <- c(", paste(p1_gaussian, collapse = ", "), ")\n")
-cat("p2_gaussian <- c(", paste(p2_gaussian, collapse = ", "), ")\n")
+cat("p_gaussian_gradual <- c(", paste(p_gaussian_gradual, collapse = ", "), ")\n")
+cat("p_gaussian_jump <- c(", paste(p_gaussian_jump, collapse = ", "), ")\n")
+cat("p_gaussian_drift <- c(", paste(p_gaussian_drift, collapse = ", "), ")\n")
+cat("p_gaussian_stable <- c(", paste(p_gaussian_stable, collapse = ", "), ")\n")

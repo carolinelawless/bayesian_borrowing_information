@@ -253,106 +253,111 @@ plot_trajectories <- function(thetas, epsilons, params) {
 
 
 
-compute_power_binomial <- function(params1,
-                                   params2,
+compute_power_binomial <- function(params_list,
                                    lambdas,
                                    threshold,
                                    M, B,
                                    a_theta, b_theta,
                                    p_eps) {
   
-  power1 <- numeric(length(lambdas))
-  power2 <- numeric(length(lambdas))
+  n_scen <- length(params_list)
+  power <- vector("list", n_scen)
   
-  for (i in seq_along(lambdas)) {
+  for (s in seq_len(n_scen)) {
     
-    lambda <- lambdas[i]
+    params <- params_list[[s]]
+    power_s <- numeric(length(lambdas))
     
-    # Scenario 1
-    res1 <- posterior_sim_binomial(params1, M, B,
-                                   lambda, a_theta,
-                                   b_theta, p_eps)
+    for (i in seq_along(lambdas)) {
+      
+      lambda <- lambdas[i]
+      
+      res <- posterior_sim_binomial(params, M, B,
+                                    lambda, a_theta,
+                                    b_theta, p_eps)
+      
+      power_s[i] <- mean(res$diffs > threshold)
+    }
     
-    power1[i] <- mean(res1$diffs > threshold)
-    
-    # Scenario 2
-    res2 <- posterior_sim_binomial(params2, M, B,
-                                   lambda, a_theta,
-                                   b_theta, p_eps)
-    
-    power2[i] <- mean(res2$diffs > threshold)
+    power[[s]] <- power_s
   }
   
-  return(list(power1 = power1,
-              power2 = power2))
+  return(power)
 }
 
 
-compute_power_gaussian <- function(params1,
-                                   params2,
+compute_power_gaussian <- function(params_list,
                                    lambdas,
                                    threshold,
                                    M, B,
-                                   mean_theta, sd_theta,
-                                   sigma,
+                                   mean_theta, sd_theta, sigma,
                                    p_eps) {
   
-  power1 <- numeric(length(lambdas))
-  power2 <- numeric(length(lambdas))
+  n_scen <- length(params_list)
+  power <- vector("list", n_scen)
   
-  for (i in seq_along(lambdas)) {
+  for (s in seq_len(n_scen)) {
     
-    lambda <- lambdas[i]
+    params <- params_list[[s]]
+    power_s <- numeric(length(lambdas))
     
-    # Scenario 1
-    res1 <- posterior_sim_gaussian(params1, M, B,
-                                   lambda,
-                                   mean_theta, sd_theta,
-                                   sigma,
-                                   p_eps)
+    for (i in seq_along(lambdas)) {
+      
+      lambda <- lambdas[i]
+      
+      res <- posterior_sim_gaussian(params, M, B,
+                                    lambda, mean_theta,
+                                    sd_theta, sigma, p_eps)
+      
+      power_s[i] <- mean(res$diffs > threshold)
+    }
     
-    power1[i] <- mean(res1$diffs > threshold)
-    
-    # Scenario 2
-    res2 <- posterior_sim_gaussian(params2, M, B,
-                                   lambda,
-                                   mean_theta, sd_theta,
-                                   sigma,
-                                   p_eps)
-    
-    power2[i] <- mean(res2$diffs > threshold)
+    power[[s]] <- power_s
   }
   
-  return(list(power1 = power1,
-              power2 = power2))
+  return(power)
 }
+
 
 
 plot_power_curves <- function(lambdas,
-                              power1,
-                              power2,
-                              label1,
-                              label2) {
+                              power,
+                              labels,
+                              hypothesis) {
   
-  plot(lambdas, power1,
+  if (hypothesis == 0) {
+    ylab <- "type-1 error"
+    legend_pos <- "topright"
+  } else {
+    ylab <- "power"
+    legend_pos <- "bottomright"
+  }
+  
+  n_curves <- ncol(power)
+  cols <- seq_len(n_curves)
+  
+  plot(lambdas, power[,1],
        type = "l",
        lwd = 2,
-       col = "blue",
+       col = cols[1],
        ylim = c(0,1),
        xlab = expression(lambda),
-       ylab = "Power")
+       ylab = ylab)
   
-  lines(lambdas, power2,
-        lwd = 2,
-        col = "red")
+  if (n_curves > 1) {
+    for (i in 2:n_curves) {
+      lines(lambdas, power[,i],
+            lwd = 2,
+            col = cols[i])
+    }
+  }
   
-  legend("bottomright",
-         legend = c(label1, label2),
-         col = c("blue", "red"),
+  legend(legend_pos,
+         legend = labels,
+         col = cols,
          lwd = 2,
          bty = "n")
 }
-
 
 
 
