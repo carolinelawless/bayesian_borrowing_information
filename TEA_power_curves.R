@@ -7,7 +7,7 @@ start_time <- Sys.time()
 
 M <- 100
 B <- 1000
-lambda <- 49
+lambda <- 19
 
 params0 <- rep(0.7, 20)
 
