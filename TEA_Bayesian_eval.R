@@ -1,96 +1,86 @@
 remove(list = ls())
-
-
 #setwd("/Users/clawless/Documents/MediTwin/bayesian_borrowing_information")
 setwd("/home/clawless/simulations/bayesian_borrowing_information")
 source("TEA_functions.R")
-#source("TEA_scenarios.R")
-
-a_theta <- 1
-b_theta <- 1
-p_eps <- 0.5
-
-M <- 1e2
-B <- 1e3 #number of estimates
-
-
-#1) Bayesian decision statistic for different values of K (number of versions)
-
-lambda <- 9 #average sample size per version = 10
-
-x <- 2:50
-
-tea_probs <- vector()
-naive_probs <- vector()
-for(i in x){
-  print(i)
-  params <- seq(0.5, 0.8, length.out = i)
-  #params <- rep(0.5, i)
-  tea <- tea_diff_mean(params, lambda, M, B)
-  naive <- naive_diff(params, lambda, M, B)
-
-  tea_probs <- c(tea_probs, sum(tea > 0.2)/length(tea))
-  naive_probs <- c(naive_probs, sum(naive > 0.2)/length(naive))
-}
-
-cols <- c("#4E79A7", "#59A14F", "#9C755F", "#B07AA1", "#76B7B2")
-
-
-
-# first plot
-plot(x, tea_probs,
-     type = "l",
-     col = cols[4],
-     ylim = c(0,1),
-     xlab = "K",
-     ylab = expression(P(abs(hat(theta)[K] - hat(theta)[1]) > 0.2)),
-     main = ""
-)
-
-# add second line
-lines(x, naive_probs,
-      col = cols[5],
-      type = "l")
-
-# optional legend
-legend("topright",
-       legend = c("TEA", "naive"),
-       col = cols[4:5],
-       lty = 1)
-
-
-
-####
-#2) At which version is the stopping decision made?
-
-K <- 20
-params <- seq(0.5, 0.8, length = K)
-#params <- rep(0.5, K)
-
-x <- 1:50
-naive_stops <- vector()
-tea_stops <- vector()
 
 start_time <- Sys.time()
 
-for(lambda in x){
+M <- 10
+B <- 1000
+a_theta <- 0.5
+b_theta <- 0.5
+p_eps <- 0.5
+
+source("TEA_functions.R")
+
+thres1 <- 0.1
+thres2 <- 0.8
+
+lambda <- 20
+params <- seq(0.6, 0.9, length = 20)
+
+
+K <- length(params)
+
+
+tea_stops <- vector()
+naive_stops <- vector()
+
+
+lambdas <- 1:10*5
+
+for(lambda in lambdas){
   print(lambda)
-  naive <- naive_stopping_decision(params, lambda, M, B)
-  tea <- tea_stopping_decision(params, lambda, M, B)
-  naive_stops <- c(naive_stops, naive)
-  tea_stops <- c(tea_stops, tea)
+  res_tea <- posterior_sim_binomial(params, M, B, lambda, a_theta, b_theta, p_eps)
+  res_naive <- posterior_sim_naive_binomial(params, M, B, lambda, a_theta, b_theta)
+  k_tea <- 0
+  stop_tea <- 0
+  while(stop_tea == 0 & k_tea < K){
+    k_tea <- k_tea + 1
+    stat <- sum(res_tea$thetas[[k_tea]] - res_tea$thetas[[1]] > thres1)/B
+    if(stat > thres2){
+      stop_tea <- 1
+    }
+  }
+  k_naive <- 0
+  stop_naive <- 0
+  while(stop_naive == 0 & k_naive < K){
+    k_naive <- k_naive + 1
+    stat <- sum(res_naive$thetas[[k_naive]] - res_naive$thetas[[1]] > thres1)/B
+    if(stat > thres2){
+      stop_naive <- 1
+    }
+  }
+  
+  
+  tea_stops <- c(tea_stops, k_tea)
+  naive_stops <- c(naive_stops, k_naive)
 }
 
+
 end_time <- Sys.time()
-time_taken <- end_time - start_time
 
-print(paste0("time taken = ", time_taken))
-print(paste0("M =", M))
-print(paste0("B =", B))
-print(paste0("lambdas <- c(", paste(x, collapse = ", "), ")"))
-print(paste0("params <- c(", paste(params, collapse = ", "), ")"))
-print(paste0("naive_stops <- c(", paste(naive_stops, collapse = ", "), ")"))
-print(paste0("tea_stops <- c(", paste(tea_stops, collapse = ", "), ")"))
+paste0("time elapsed =", end_time - start_time)
+paste0("M =", M)
+paste0("B = ", B)
+paste0("a_theta =", a_theta)
+paste0("b_theta =", b_theta)
+paste0("p_eps =", p_eps)
+paste0("threshold1 = ", thres1)
+paste0("threshold2 = ", thres2)
 
-#("TEA_Bayesian_eval_plots.R" for the plots)
+cat("lambdas <- c(", paste(lambdas, collapse = ", "), ")\n")
+cat("naive_stops <- c(", paste(naive_stops, collapse = ", "), ")\n")
+cat("tea_stops <- c(", paste(tea_stops, collapse = ", "), ")\n")
+
+
+# plot(lambdas, tea_stops, type = "l", col = "1", xlab = "λ", ylab = "new clinical trial")
+# lines(lambdas, naive_stops, col = "2")
+# legend("topright",
+#        legend = c("TEA model", "naive model"),
+#        pch = c(16, 16),
+#        col = c("1", "2"),
+#        bty = "n")
+
+
 
