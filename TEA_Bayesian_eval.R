@@ -5,7 +5,7 @@ source("TEA_functions.R")
 
 start_time <- Sys.time()
 
-M <- 500
+M <- 1000
 B <- 1000
 a_theta <- 0.5
 b_theta <- 0.5
@@ -17,8 +17,8 @@ thres1 <- 0.1
 thres2 <- 0.8
 
 lambda <- 20
-#params <- seq(0.6, 0.9, length = 20)
-params <- c(rep(0.6, 19), 0.9)
+params <- seq(0.6, 0.9, length = 20)
+#params <- c(rep(0.6, 19), 0.9)
 
 K <- length(params)
 
