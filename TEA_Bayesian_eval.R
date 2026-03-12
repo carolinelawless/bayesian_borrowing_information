@@ -6,7 +6,7 @@ source("TEA_functions.R")
 start_time <- Sys.time()
 
 M <- 500
-B <- 5000
+B <- 1000
 a_theta <- 0.5
 b_theta <- 0.5
 p_eps <- 0.5
