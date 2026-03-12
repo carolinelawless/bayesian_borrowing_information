@@ -5,7 +5,7 @@ source("TEA_functions.R")
 
 start_time <- Sys.time()
 
-M <- 100
+M <- 500
 B <- 1000
 a_theta <- 0.5
 b_theta <- 0.5
@@ -69,18 +69,12 @@ paste0("p_eps =", p_eps)
 paste0("threshold1 = ", thres1)
 paste0("threshold2 = ", thres2)
 
+
+cat("params <- c(", paste(params, collapse = ", "), ")\n")
 cat("lambdas <- c(", paste(lambdas, collapse = ", "), ")\n")
 cat("naive_stops <- c(", paste(naive_stops, collapse = ", "), ")\n")
 cat("tea_stops <- c(", paste(tea_stops, collapse = ", "), ")\n")
 
-
-# plot(lambdas, tea_stops, type = "l", col = "1", xlab = "λ", ylab = "new clinical trial")
-# lines(lambdas, naive_stops, col = "2")
-# legend("topright",
-#        legend = c("TEA model", "naive model"),
-#        pch = c(16, 16),
-#        col = c("1", "2"),
-#        bty = "n")
 
 
 
