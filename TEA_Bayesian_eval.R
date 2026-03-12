@@ -5,7 +5,7 @@ source("TEA_functions.R")
 
 start_time <- Sys.time()
 
-M <- 1000
+M <- 500
 B <- 5000
 a_theta <- 0.5
 b_theta <- 0.5
@@ -27,7 +27,7 @@ tea_stops <- vector()
 naive_stops <- vector()
 
 
-lambdas <- 1:50
+lambdas <- 1:100/2
 
 for(lambda in lambdas){
   print(lambda)
