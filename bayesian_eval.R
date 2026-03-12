@@ -18,7 +18,7 @@ thres2 <- 0.8
 
 lambda <- 20
 params <- seq(0.6, 0.9, length = 20)
-#params <- c(rep(0.6, 19), 0.9)
+params <- rep(0.7, 20)
 
 K <- length(params)
 
@@ -27,7 +27,23 @@ tea_stops <- vector()
 naive_stops <- vector()
 
 
-lambdas <- 1:100/2
+lambdas <- 1:50
+
+stat_tea <- vector(length = length(lambdas))
+stat_naive <- vector(length = length(lambdas))
+
+K <- length(params)
+
+for(i in 1:length(lambdas)){
+  lambda <- lambdas[i]
+  print(lambda)
+  res_tea <- posterior_sim_binomial(params, M, B, lambda, a_theta, b_theta, p_eps)
+  res_naive <- posterior_sim_naive_binomial(params, M, B, lambda, a_theta, b_theta)
+  stat_tea[i] <- sum(res_tea$thetas[[K]] - res_tea$thetas[[1]] > thres1)/B
+  stat_naive[i] <- sum(res_naive$thetas[[K]] - res_naive$thetas[[1]] > thres1)/B
+}
+
+
 
 for(lambda in lambdas){
   print(lambda)
@@ -58,6 +74,7 @@ for(lambda in lambdas){
 }
 
 
+
 end_time <- Sys.time()
 
 paste0("time elapsed =", end_time - start_time)
@@ -75,6 +92,7 @@ cat("lambdas <- c(", paste(lambdas, collapse = ", "), ")\n")
 cat("naive_stops <- c(", paste(naive_stops, collapse = ", "), ")\n")
 cat("tea_stops <- c(", paste(tea_stops, collapse = ", "), ")\n")
 
-
-
+cat("lambdas <- c(", paste(lambdas, collapse = ", "), ")\n")
+cat("stat_tea <- c(", paste(stat_tea, collapse = ", "), ")\n")
+cat("stat_naive <- c(", paste(stat_naive, collapse = ", "), ")\n")
 

@@ -59,7 +59,7 @@ smc_sampler_binomial <- function(V, M, a_theta, b_theta, p_eps) {
   
   # Initial particles for first version
   theta <- rbeta(M, a_theta, b_theta)
-  
+
   
   for (k in 1:K) {
     data1 <- V[[k]]
@@ -74,7 +74,7 @@ smc_sampler_binomial <- function(V, M, a_theta, b_theta, p_eps) {
     
     
     
-    # Binomial log-likelihoods
+  # Binomial log-likelihoods
     
     data1 <- V[[k]]
     n1 <- length(data1)
@@ -83,7 +83,7 @@ smc_sampler_binomial <- function(V, M, a_theta, b_theta, p_eps) {
     
     logliks <- dbinom(s1, n1, theta, log = TRUE)
     
-    
+
     
     # Normalize weights
     maxll <- max(logliks)
@@ -362,7 +362,7 @@ plot_power_curves <- function(lambdas,
 
 
 posterior_sim_naive_binomial <- function(params, M, B, lambda, a_theta, b_theta) {
-  
+
   
   K <- length(params)
   
@@ -384,39 +384,31 @@ posterior_sim_naive_binomial <- function(params, M, B, lambda, a_theta, b_theta)
       V[[k]] <- rbinom(n[k], 1, params[k])
     }
     
-    # sufficient statistics
-    y1 <- sum(V[[1]])
-    yK <- sum(V[[K]])
-    
-    n1 <- n[1]
-    nK <- n[K]
-    
-    # posterior draws
-    theta1_post <- rbeta(M,
-                         a_theta + y1,
-                         b_theta + n1 - y1)
-    
-    thetaK_post <- rbeta(M,
-                         a_theta + yK,
-                         b_theta + nK - yK)
+
     
     # store means
-    thetas[[1]] <- c(thetas[[1]], mean(theta1_post))
-    thetas[[K]] <- c(thetas[[K]], mean(thetaK_post))
-    
+    for(k in 1:K){
+      y1 <- sum(V[[k]])
+      n1 <- n[k]
+      theta_post <- rbeta(M, a_theta + y1, b_theta + n1 - y1)
+      thetas[[k]] <- c(thetas[[k]], mean(theta_post))
+      if(k == 1){theta1_post <- theta_post}
+      if(k == K){thetaK_post <- theta_post}
+    }
+
     # difference
-    diffs[b] <- abs(mean(thetaK_post) - mean(theta1_post))
+   diffs[b] <- abs(mean(thetaK_post) - mean(theta1_post))
   }
   
   return(list(
-    thetas = thetas,
+    thetas = thetas, 
     diffs = diffs
   ))
 }
 
 
 posterior_sim_naive_gaussian <- function(params, M, B, lambda, mean_theta, sd_theta, sigma) {
-  
+
   
   K <- length(params)
   
@@ -550,7 +542,7 @@ plot_model_comparison <- function(lambdas,
   plot(lambdas, tea_values,
        type = "l",
        lwd = 2,
-       col = "blue",
+       col = "1",
        xlab = expression(lambda),
        ylab = stat_name,
        ylim = range(c(tea_values, naive_values)))
@@ -558,7 +550,7 @@ plot_model_comparison <- function(lambdas,
   # add naive
   lines(lambdas, naive_values,
         lwd = 2,
-        col = "red")
+        col = "2")
   
   # legend
   legend("topright",
@@ -568,65 +560,6 @@ plot_model_comparison <- function(lambdas,
          bty = "n")
 }
 
-tea_stopping_decision_binomial <- function(params, M, B, lambda, a_theta, b_theta, p_eps){
-  k_tea <- 1
-  new_trial_tea <- 0
-  while(new_trial_tea == 0 & k_tea < length(params)){
-    print(k_tea)
-    k_tea <- k_tea + 1
-    params_subset <- params[1:k_tea]
-    diffs <- posterior_sim_binomial(params_subset, M, B, lambda, a_theta, b_theta, p_eps)$diffs
-    diffs <- diffs[!is.nan(diffs)]
-    if(sum(diffs > 0.1)/length(diffs) > 0.7 ){
-      new_trial_tea <- 1
-    }
-  }
-  
-  
-  k_naive <- 1
-  new_trial_naive <- 0
-  while(new_trial_naive == 0 & k_naive < length(params)){
-    print(k_naive)
-    k_naive <- k_naive + 1
-    params_subset <- params[1:k_naive]
-    diffs <- posterior_sim_naive_binomial(params_subset, M, B, lambda, a_theta, b_theta)$diffs
-    diffs <- diffs[!is.nan(diffs)]
-    if(sum(diffs > 0.1)/length(diffs) > 0.7){
-      new_trial_naive <- 1
-    }
-  }
-  
-  return(list(k_tea = k_tea, new_trial_tea = new_trial_tea, k_naive = k_naive, new_trial_naive = new_trial_naive))
-}
 
 
-tea_stopping_decision_gaussian <- function(params, M, B, lambda, mean_theta, sd_theta, sigama, p_eps){
-  k_tea <- 1
-  new_trial_tea <- 0
-  while(new_trial_tea == 0 & k_tea < length(params)){
-    print(k_tea)
-    k_tea <- k_tea + 1
-    params_subset <- params[1:k_tea]
-    diffs <- posterior_sim_gaussian(params_subset, M, B, lambda, mean_theta, sd_theta, sigma, p_eps)$diffs
-    diffs <- diffs[!is.nan(diffs)]
-    if(sum(diffs > 0.1)/length(diffs) > 0.8 ){
-      new_trial_tea <- 1
-    }
-  }
-  
-  
-  k_naive <- 1
-  new_trial_naive <- 0
-  while(new_trial_naive == 0 & k_naive < length(params)){
-    print(k_naive)
-    k_naive <- k_naive + 1
-    params_subset <- params[1:k_naive]
-    diffs <- posterior_sim_naive_gaussian(params_subset, M, B, lambda, mean_theta, sd_theta)$diffs
-    diffs <- diffs[!is.nan(diffs)]
-    if(sum(diffs > 0.1)/length(diffs) > 0.8 ){
-      new_trial_naive <- 1
-    }
-  }
-  
-  return(list(k_tea = k_tea, new_trial_tea = new_trial_tea, k_naive = k_naive, new_trial_naive = new_trial_naive))
-}
+
