@@ -13,8 +13,8 @@ p_eps <- 0.5
 mean_theta <- 0.5
 sd_theta <- 0.5
 sigma <- 0.5
-#model <- "binomial"
-model <- "gaussian"
+model <- "binomial"
+#model <- "gaussian"
 
 
 thres1 <- 0.1
