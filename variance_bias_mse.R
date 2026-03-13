@@ -61,6 +61,15 @@ stat_name <- "variance"
 cat(paste0("tea_",stat_name,"_",model)," <- c(", paste(get(paste0("tea_",stat_name,"_",model)), collapse = ", "), ")\n")
 stat_name <- "mse"
 cat(paste0("tea_",stat_name,"_",model)," <- c(", paste(get(paste0("tea_",stat_name,"_",model)), collapse = ", "), ")\n")
+model <- "binomial"
+stat_name <- "bias"
+cat(paste0("naive_",stat_name,"_",model)," <- c(", paste(get(paste0("naive_",stat_name,"_",model)), collapse = ", "), ")\n")
+stat_name <- "variance"
+cat(paste0("naive_",stat_name,"_",model)," <- c(", paste(get(paste0("naive_",stat_name,"_",model)), collapse = ", "), ")\n")
+stat_name <- "mse"
+cat(paste0("naive_",stat_name,"_",model)," <- c(", paste(get(paste0("naive_",stat_name,"_",model)), collapse = ", "), ")\n")
+
+
 
 
 model <- "gaussian"
@@ -70,7 +79,12 @@ stat_name <- "variance"
 cat(paste0("tea_",stat_name,"_",model)," <- c(", paste(get(paste0("tea_",stat_name,"_",model)), collapse = ", "), ")\n")
 stat_name <- "mse"
 cat(paste0("tea_",stat_name,"_",model)," <- c(", paste(get(paste0("tea_",stat_name,"_",model)), collapse = ", "), ")\n")
-
+stat_name <- "bias"
+cat(paste0("naive_",stat_name,"_",model)," <- c(", paste(get(paste0("naive_",stat_name,"_",model)), collapse = ", "), ")\n")
+stat_name <- "variance"
+cat(paste0("naive_",stat_name,"_",model)," <- c(", paste(get(paste0("naive_",stat_name,"_",model)), collapse = ", "), ")\n")
+stat_name <- "mse"
+cat(paste0("naive_",stat_name,"_",model)," <- c(", paste(get(paste0("naive_",stat_name,"_",model)), collapse = ", "), ")\n")
 
 
 
