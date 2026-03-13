@@ -2,8 +2,8 @@ remove(list = ls())
 
 source("functions.R")
 
-#params <- seq(0.6, 0.9, length = 20)
-params <- rep(0.7, 20)
+params <- seq(0.6, 0.9, length = 20)
+#params <- rep(0.7, 20)
 M <- 500
 B <- 1000
 lambdas <- 1:50*2
