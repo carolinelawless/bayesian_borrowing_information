@@ -388,9 +388,9 @@ posterior_sim_naive_binomial <- function(params, M, B, lambda, a_theta, b_theta)
     
     # store means
     for(k in 1:K){
-      y1 <- sum(V[[k]])
-      n1 <- n[k]
-      theta_post <- rbeta(M, a_theta + y1, b_theta + n1 - y1)
+      y_k <- sum(V[[k]])
+      n_k <- n[k]
+      theta_post <- rbeta(M, a_theta + y_k, b_theta + n_k - y_k)
       thetas[[k]] <- c(thetas[[k]], mean(theta_post))
       if(k == 1){theta1_post <- theta_post}
       if(k == K){thetaK_post <- theta_post}
@@ -408,7 +408,6 @@ posterior_sim_naive_binomial <- function(params, M, B, lambda, a_theta, b_theta)
 
 
 posterior_sim_naive_gaussian <- function(params, M, B, lambda, mean_theta, sd_theta, sigma) {
-
   
   K <- length(params)
   
@@ -423,36 +422,29 @@ posterior_sim_naive_gaussian <- function(params, M, B, lambda, mean_theta, sd_th
   
   for (b in 1:B) {
     
-    # sample sizes
     n <- rpois(K, lambda) + 1
     
-    # simulate data
     V <- vector("list", K)
     for (k in 1:K) {
       V[[k]] <- rnorm(n[k], params[k], sigma)
     }
     
-    # version 1
-    x1 <- V[[1]]
-    n1 <- length(x1)
-    
-    post_var1 <- 1 / (n1/sigma^2 + 1/sigma0_sq)
-    post_mean1 <- post_var1 * (sum(x1)/sigma^2 + mean_theta/sigma0_sq)
-    
-    theta1_post <- rnorm(M, post_mean1, sqrt(post_var1))
-    
-    # version K
-    xK <- V[[K]]
-    nK <- length(xK)
-    
-    post_varK <- 1 / (nK/sigma^2 + 1/sigma0_sq)
-    post_meanK <- post_varK * (sum(xK)/sigma^2 + mean_theta/sigma0_sq)
-    
-    thetaK_post <- rnorm(M, post_meanK, sqrt(post_varK))
-    
-    # store means
-    thetas[[1]] <- c(thetas[[1]], mean(theta1_post))
-    thetas[[K]] <- c(thetas[[K]], mean(thetaK_post))
+    for(k in 1:K){
+      
+      mean_obs <- mean(V[[k]])
+      n_obs <- length(V[[k]])
+      
+      var_post <- 1/(1/sigma0_sq + n_obs/sigma^2)
+      
+      mean_post <- var_post*(mean_theta/sigma0_sq + n_obs*mean_obs/sigma^2)
+      
+      theta_post <- rnorm(M, mean_post, sqrt(var_post))
+      
+      thetas[[k]] <- c(thetas[[k]], mean(theta_post))
+      
+      if(k == 1){theta1_post <- theta_post}
+      if(k == K){thetaK_post <- theta_post}
+    }
     
     diffs[b] <- abs(mean(thetaK_post) - mean(theta1_post))
   }
