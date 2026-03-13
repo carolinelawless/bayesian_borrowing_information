@@ -1,5 +1,5 @@
 remove(list = ls())
-
+setwd("/home/clawless/simulations/bayesian_borrowing_information")
 source("functions.R")
 
 params <- seq(0.6, 0.9, length = 20)
