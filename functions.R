@@ -128,7 +128,7 @@ posterior_sim_gaussian <- function(params, M, B, lambda, mean_theta, sd_theta, s
   for (b in 1:B) {
     # simulate data for this iteration
     n <- rpois(K, lambda) + 1
-    V <- lapply(1:K, function(k) rnorm(n[k], mean = params[k], sd = sigma))
+    V <- lapply(1:K, function(k) rnorm(n[k], mean = params[k], sd = 0.5))
     
     # run SMC for Gaussian model
     smc_out <- smc_sampler_gaussian(V, M, mean_theta, sd_theta, sigma, p_eps)
