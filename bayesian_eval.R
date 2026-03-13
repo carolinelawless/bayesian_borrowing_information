@@ -21,8 +21,8 @@ thres1 <- 0.1
 thres2 <- 0.8
 
 
-params <- seq(0.6, 0.9, length = 20)
-#params <- rep(0.7, 20)
+#params <- seq(0.6, 0.9, length = 20)
+params <- rep(0.7, 20)
 
 K <- length(params)
 
