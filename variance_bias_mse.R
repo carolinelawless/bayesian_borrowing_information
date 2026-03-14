@@ -5,7 +5,7 @@ source("functions.R")
 params <- seq(0.6, 0.9, length = 20)
 #params <- rep(0.7, 20)
 M <- 100
-B <- 100
+B <- 500
 lambdas <- 1:50*2
 a_theta <- 1
 b_theta <- 1
@@ -61,7 +61,6 @@ stat_name <- "variance"
 cat(paste0("tea_",stat_name,"_",model)," <- c(", paste(get(paste0("tea_",stat_name,"_",model)), collapse = ", "), ")\n")
 stat_name <- "mse"
 cat(paste0("tea_",stat_name,"_",model)," <- c(", paste(get(paste0("tea_",stat_name,"_",model)), collapse = ", "), ")\n")
-model <- "gaussian"
 stat_name <- "bias"
 cat(paste0("naive_",stat_name,"_",model)," <- c(", paste(get(paste0("naive_",stat_name,"_",model)), collapse = ", "), ")\n")
 stat_name <- "variance"
