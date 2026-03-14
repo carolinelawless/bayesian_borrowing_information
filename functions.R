@@ -547,7 +547,7 @@ plot_model_comparison <- function(lambdas,
   # legend
   legend("topright",
          legend = c("TEA", "Naive"),
-         col = c("blue", "red"),
+         col = c("1", "2"),
          lwd = 2,
          bty = "n")
 }
