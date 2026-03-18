@@ -522,7 +522,7 @@ TEA_eval_gaussian <- function(params, M, B, lambdas, mean_theta, sd_theta, sigma
 plot_model_comparison <- function(lambdas,
                                   tea_values,
                                   naive_values,
-                                  stat_name) {
+                                  stat_name, col1, col2) {
   
   # basic checks
   if(length(lambdas) != length(tea_values) |
@@ -534,7 +534,7 @@ plot_model_comparison <- function(lambdas,
   plot(lambdas, tea_values,
        type = "l",
        lwd = 2,
-       col = "1",
+       col = col1,
        xlab = expression(lambda),
        ylab = stat_name,
        ylim = range(c(tea_values, naive_values)))
@@ -542,12 +542,12 @@ plot_model_comparison <- function(lambdas,
   # add naive
   lines(lambdas, naive_values,
         lwd = 2,
-        col = "2")
+        col = col2)
   
   # legend
   legend("topright",
          legend = c("TEA", "Naive"),
-         col = c("1", "2"),
+         col = c(col1, col2),
          lwd = 2,
          bty = "n")
 }
