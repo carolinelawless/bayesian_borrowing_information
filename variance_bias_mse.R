@@ -5,8 +5,8 @@ source("functions.R")
 #params <- seq(0.6, 0.9, length = 20)
 #params <- rep(0.7, 20)
 
-params <- c(rep(0.6, 19), 0.9)
-
+#params <- c(rep(0.6, 19), 0.9)
+params <- c(seq(0.6, 0.9, length = 10), seq(0.9, 0.6, length = 10))
 
 M <- 500
 B <- 1000
