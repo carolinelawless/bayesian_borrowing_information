@@ -7,8 +7,11 @@ source("functions.R")
 
 params <- c(rep(0.6, 19), 0.9)
 
-M <- 500
-B <- 1000
+
+M <- 20
+B <- 20
+#M <- 500
+#B <- 1000
 lambdas <- 1:50
 a_theta <- 1
 b_theta <- 1
