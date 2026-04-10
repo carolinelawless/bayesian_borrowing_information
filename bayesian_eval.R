@@ -7,6 +7,8 @@ start_time <- Sys.time()
 
 M <- 500
 B <- 1000
+M <- 50
+B <- 50
 a_theta <- 0.5
 b_theta <- 0.5
 p_eps <- 0.5
@@ -34,29 +36,29 @@ K <- length(params)
 #naive_stops <- vector()
 
 
-#lambdas <- 1:100/2
+lambdas <- 1:100/2
 
 
-# stat_tea <- vector(length = length(lambdas))
-# stat_naive <- vector(length = length(lambdas))
+stat_tea <- vector(length = length(lambdas))
+stat_naive <- vector(length = length(lambdas))
 # 
-# 
-# 
-# for(i in 1:length(lambdas)){
-#   lambda <- lambdas[i]
-#   print(lambda)
-#   if(model == "binomial"){
-#     res_tea <- posterior_sim_binomial(params, M, B, lambda, a_theta, b_theta, p_eps)
-#     res_naive <- posterior_sim_naive_binomial(params, M, B, lambda, a_theta, b_theta)
-#   }else if(model == "gaussian"){
-#     res_tea <- posterior_sim_gaussian(params, M, B, lambda, mean_theta, sd_theta, sigma, p_eps)
-#     res_naive <- posterior_sim_naive_gaussian(params, M, B, lambda, mean_theta, sd_theta, sigma)
-#   }
-# 
-#   stat_tea[i] <- sum(res_tea$thetas[[K]] - res_tea$thetas[[1]] > thres1)/B
-#   stat_naive[i] <- sum(res_naive$thetas[[K]] - res_naive$thetas[[1]] > thres1)/B
-# }
-# 
+
+
+for(i in 1:length(lambdas)){
+  lambda <- lambdas[i]
+  print(lambda)
+  if(model == "binomial"){
+    res_tea <- posterior_sim_binomial(params, M, B, lambda, a_theta, b_theta, p_eps)
+    res_naive <- posterior_sim_naive_binomial(params, M, B, lambda, a_theta, b_theta)
+  }else if(model == "gaussian"){
+    res_tea <- posterior_sim_gaussian(params, M, B, lambda, mean_theta, sd_theta, sigma, p_eps)
+    res_naive <- posterior_sim_naive_gaussian(params, M, B, lambda, mean_theta, sd_theta, sigma)
+  }
+
+  stat_tea[i] <- sum(res_tea$thetas[[K]] - res_tea$thetas[[1]] > thres1)/B
+  stat_naive[i] <- sum(res_naive$thetas[[K]] - res_naive$thetas[[1]] > thres1)/B
+}
+
 # 
 # tea_stops <- vector()
 # naive_stops <- vector()
@@ -93,30 +95,8 @@ K <- length(params)
 #   naive_stops <- c(naive_stops, k_naive)
 # }
 
-lambda <- 9
-param_lengths <- 5:50
-
-stat_tea <- vector(length = length(param_lengths))
-stat_naive <- vector(length = length(param_lengths))
 
 
-
-for(i in 1:length(param_lengths)){
-  len <- param_lengths[i]
-  params <- seq(0.6, 0.9, length = len)
-  print(len)
-  K <- len
-  if(model == "binomial"){
-    res_tea <- posterior_sim_binomial(params, M, B, lambda, a_theta, b_theta, p_eps)
-    res_naive <- posterior_sim_naive_binomial(params, M, B, lambda, a_theta, b_theta)
-  }else if(model == "gaussian"){
-    res_tea <- posterior_sim_gaussian(params, M, B, lambda, mean_theta, sd_theta, sigma, p_eps)
-    res_naive <- posterior_sim_naive_gaussian(params, M, B, lambda, mean_theta, sd_theta, sigma)
-  }
-
-  stat_tea[i] <- sum(res_tea$thetas[[K]] - res_tea$thetas[[1]] > thres1)/B
-  stat_naive[i] <- sum(res_naive$thetas[[K]] - res_naive$thetas[[1]] > thres1)/B
-}
 
 
 end_time <- Sys.time()
@@ -137,9 +117,9 @@ cat("lambdas <- c(", paste(lambdas, collapse = ", "), ")\n")
 cat("stat_tea <- c(", paste(stat_tea, collapse = ", "), ")\n")
 cat("stat_naive <- c(", paste(stat_naive, collapse = ", "), ")\n")
 
-cat("lambdas <- c(", paste(lambdas, collapse = ", "), ")\n")
-cat("naive_stops <- c(", paste(naive_stops, collapse = ", "), ")\n")
-cat("tea_stops <- c(", paste(tea_stops, collapse = ", "), ")\n")
+#cat("lambdas <- c(", paste(lambdas, collapse = ", "), ")\n")
+#cat("naive_stops <- c(", paste(naive_stops, collapse = ", "), ")\n")
+#cat("tea_stops <- c(", paste(tea_stops, collapse = ", "), ")\n")
 
 
 
