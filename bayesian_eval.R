@@ -7,8 +7,7 @@ start_time <- Sys.time()
 
 M <- 500
 B <- 1000
-M <- 50
-B <- 50
+
 a_theta <- 0.5
 b_theta <- 0.5
 p_eps <- 0.5
