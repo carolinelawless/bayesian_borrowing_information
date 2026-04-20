@@ -200,6 +200,24 @@ posterior_sim_binomial <- function(params, M, B, lambda, a_theta, b_theta, p_eps
 }
 
 
+plot_true_theta <- function(params) {
+  
+  K <- length(params)
+  x <- 1:K
+  
+  plot(x, params,
+       ylim = c(0, 1),
+       pch = 16,
+       col = rgb(0, 0, 1, 0.6),
+       cex = 1.8,
+       ylab = expression(theta),
+       xlab = "version",
+       xaxt = "n")
+  
+  axis(1, at = x, labels = x)
+  
+}
+
 
 plot_trajectories <- function(thetas, epsilons, params) {
   
@@ -522,7 +540,7 @@ TEA_eval_gaussian <- function(params, M, B, lambdas, mean_theta, sd_theta, sigma
 plot_model_comparison <- function(lambdas,
                                   tea_values,
                                   naive_values,
-                                  stat_name, col1, col2){
+                                  stat_name, col1, col2, scenario = ""){
   
   # basic checks
   if(length(lambdas) != length(tea_values) |
@@ -535,6 +553,7 @@ plot_model_comparison <- function(lambdas,
        type = "l",
        lwd = 2,
        col = col1,
+       main = scenario,
        xlab = expression(lambda),
        ylab = stat_name,
        #ylim = c(0, 0.26))
