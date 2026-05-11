@@ -205,18 +205,42 @@ plot_true_theta <- function(params) {
   K <- length(params)
   x <- 1:K
   
+  par(mar = c(5, 6, 4, 2))  # increase left margin
+  
   plot(x, params,
-       ylim = c(0, 1),
+       ylim = c(0.5, 1),
        pch = 16,
        col = rgb(0, 0, 1, 0.6),
        cex = 1.8,
+       cex.lab = 3,
+       cex.axis = 1.2,
        ylab = expression(theta),
        xlab = "version",
        xaxt = "n")
   
   axis(1, at = x, labels = x)
-  
 }
+
+
+# plot_true_theta <- function(params) {
+#   
+#   K <- length(params)
+#   x <- 1:K
+#   
+#   plot(x, params,
+#        ylim = c(0.5, 1),
+#        pch = 16,
+#        col = rgb(0, 0, 1, 0.6),
+#        cex = 1.8,
+#        cex.lab = 3,
+#        cex.axis = 1.2,
+#        ylab = expression(theta),
+#        xlab = "version",
+#        xaxt = "n")
+#   
+#   axis(1, at = x, labels = x)
+#   
+# }
 
 
 plot_trajectories <- function(thetas, epsilons, params) {
@@ -234,10 +258,13 @@ plot_trajectories <- function(thetas, epsilons, params) {
   eps_q10   <- sapply(epsilons, quantile, probs = 0.1, na.rm = TRUE)
   eps_q90   <- sapply(epsilons, quantile, probs = 0.9, na.rm = TRUE)
   
+  
+
   # Base plot for theta
   plot(x, means_theta,
        ylim = c(0, 1),
        pch = 16, col = "black",
+       cex.lab = 3,
        ylab = "θ / ε",
        xlab = "version",
        xaxt = "n")
@@ -257,13 +284,14 @@ plot_trajectories <- function(thetas, epsilons, params) {
   arrows(x_eps[-1], eps_q10[-1], x_eps[-1], eps_q90[-1],
          angle = 90, code = 3, length = 0.05, col = "red")
   
-  # Legend
-  legend("bottomright",
-         legend = c("theta posterior mean", "true theta", "epsilon posterior mean"),
-         pch = c(16, 16, 4),
-         col = c("black", rgb(0,0,1,0.4), "red"),
-         bty = "n")
-  
+  # # Legend
+  # legend("bottomright",
+  #        legend = c("theta posterior mean", "true theta", "epsilon posterior mean"),
+  #        pch = c(16, 16, 4),
+  #        col = c("black", rgb(0,0,1,0.4), "red"),
+  #        cex = 1.5,
+  #        bty = "n")
+  # 
 }
 
 
@@ -354,10 +382,16 @@ plot_power_curves <- function(lambdas,
   n_curves <- ncol(power)
   cols <- seq_len(n_curves)
   
+  
+
+  par(mar = c(5, 6, 4, 2) + 0.1)
+
+  
   plot(lambdas, power[,1],
        type = "l",
-       lwd = 2,
+       lwd = 3,
        col = cols[1],
+       cex.lab = 3,
        ylim = c(0,1),
        xlab = expression(lambda),
        ylab = ylab)
@@ -365,7 +399,7 @@ plot_power_curves <- function(lambdas,
   if (n_curves > 1) {
     for (i in 2:n_curves) {
       lines(lambdas, power[,i],
-            lwd = 2,
+            lwd = 3,
             col = cols[i])
     }
   }
@@ -373,7 +407,8 @@ plot_power_curves <- function(lambdas,
   legend(legend_pos,
          legend = labels,
          col = cols,
-         lwd = 2,
+         lwd = 3,
+         cex = 2,
          bty = "n")
 }
 
@@ -548,29 +583,35 @@ plot_model_comparison <- function(lambdas,
     stop("All input vectors must have the same length.")
   }
   
+  
+  par(mar = c(5, 6, 4, 2) + 0.1)
+
+  
   # plot TEA
   plot(lambdas, tea_values,
        type = "l",
-       lwd = 2,
+       lwd = 3,
        col = col1,
-       main = scenario,
+       # main = scenario,
        xlab = expression(lambda),
        ylab = stat_name,
+       cex.lab = 3,
        #ylim = c(0, 0.26))
        ylim = range(c(tea_values, naive_values)))
   
   # add naive
   lines(lambdas, naive_values,
-        lwd = 2,
+        lwd = 3,
         col = col2)
   
-  # legend
-  legend("topright",
-         legend = c("A-TEA", "Naive"),
-         col = c(col1, col2),
-         lwd = 2,
-         bty = "n")
+  # # legend
+  # legend("topright",
+  #        legend = c("A-TEA", "Naive"),
+  #        col = c(col1, col2),
+  #        lwd = 2,
+  #        bty = "n")
 }
+
 
 
 
