@@ -5,8 +5,8 @@ source("functions.R")
 
 start_time <- Sys.time()
 
-M <- 500
-B <- 20000
+M <- 200
+B <- 50000
 
 #M <- B <- 50
 
