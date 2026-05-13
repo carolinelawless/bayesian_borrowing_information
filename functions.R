@@ -590,18 +590,19 @@ plot_model_comparison <- function(lambdas,
   # plot TEA
   plot(lambdas, tea_values,
        type = "l",
-       lwd = 3,
+       lwd = 5,
        col = col1,
        # main = scenario,
        xlab = expression(lambda),
        ylab = stat_name,
        cex.lab = 3,
+       cex.axis = 1.5,
        #ylim = c(0, 0.26))
        ylim = range(c(tea_values, naive_values)))
   
   # add naive
   lines(lambdas, naive_values,
-        lwd = 3,
+        lwd = 5,
         col = col2)
   
   # # legend
