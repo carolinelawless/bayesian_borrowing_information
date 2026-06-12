@@ -119,14 +119,14 @@ paste0("a_eps =", a_eps)
 paste0("b_eps =", b_eps)
 paste0("CSD =", CSD)
 paste0("thres =", thres)
-cat("lambdas<- c(",paste(lambdas, collapse = ", "), ")")
+cat("lambdas<- c(",paste(lambdas, collapse = ", "), ")", ")\n")
 
 
-cat("stops_TEA0<- c(",paste(stops_TEA0, collapse = ", "), ")")
-cat("stops_TEA0.5<- c(",paste(stops_TEA0.5, collapse = ", "), ")")
-cat("stops_TEA1<- c(",paste(stops_TEA1, collapse = ", "), ")")
-cat("stops_ATEA<- c(",paste(stops_ATEA, collapse = ", "), ")")
-cat("stops_EB<- c(",paste(stops_EB, collapse = ", "), ")")
+cat("stops_TEA0<- c(",paste(stops_TEA0, collapse = ", "), ")", ")\n")
+cat("stops_TEA0.5<- c(",paste(stops_TEA0.5, collapse = ", "), ")", ")\n")
+cat("stops_TEA1<- c(",paste(stops_TEA1, collapse = ", "), ")", ")\n")
+cat("stops_ATEA<- c(",paste(stops_ATEA, collapse = ", "), ")", ")\n")
+cat("stops_EB<- c(",paste(stops_EB, collapse = ", "), ")", ")\n")
 
 
 
