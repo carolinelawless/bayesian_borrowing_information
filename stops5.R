@@ -17,8 +17,8 @@ if(scenario == "Gradual"){
 
 
 
-M <- 100
-B <- 10000
+M <- 500
+B <- 2000
 a_theta <- 1
 b_theta <- 1
 a_eps <- 1
