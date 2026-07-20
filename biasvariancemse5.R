@@ -2,9 +2,9 @@ remove(list = ls())
 source("functions5.R")
 
 scenario <- "Gradual"
-scenario <- "Abrupt"
-scenario <- "Drift"
-scenario <- "Stable"
+#scenario <- "Abrupt"
+#scenario <- "Drift"
+#scenario <- "Stable"
 
 if(scenario == "Gradual"){
   params <- seq(0.6, 0.9, length = 10)
@@ -18,14 +18,15 @@ if(scenario == "Gradual"){
 
 
 M <- 100
-B <- 2000
+B <- 500
 a_theta <- 1
 b_theta <- 1
 a_eps <- 1
 b_eps <- 1
 CSD <- 0.1
+thres <- 0.8
 lambdas <- 1:50
-
+#lambda <- 19
 
 
 

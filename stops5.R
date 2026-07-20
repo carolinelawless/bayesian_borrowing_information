@@ -7,7 +7,7 @@ scenario <- "Gradual"
 
 
 if(scenario == "Gradual"){
-  params <- seq(0.6, 0.9, length = 10)
+  params <- seq(0.6, 0.9, length = 20)
 }else if(scenario == "Abrupt"){
   params <- c(rep(0.6, 9), 0.9)
 }else if(scenario == "Drift"){
@@ -17,15 +17,15 @@ if(scenario == "Gradual"){
 
 
 
-M <- 200
-B <- 20000
+M <- 500
+B <- 500
 a_theta <- 1
 b_theta <- 1
 a_eps <- 1
 b_eps <- 1
 CSD <- 0.1
 thres <- 0.8
-lambdas <- 1:50
+lambdas <- 1:10*5
 #lambda <- 19
 
 
@@ -56,6 +56,7 @@ for(lambda in lambdas){
       stop <- 1
     }
   }
+  stop_TEA0 <- k
   stops_TEA0 <- c(stops_TEA0, k)
 
   res <- res_TEA0.5
@@ -68,6 +69,7 @@ for(lambda in lambdas){
       stop <- 1
     }
   }
+  stop_TEA0.5 <- k
   stops_TEA0.5 <- c(stops_TEA0.5, k)
   
   res <- res_TEA1
@@ -80,6 +82,7 @@ for(lambda in lambdas){
       stop <- 1
     }
   }
+  stop_TEA1 <- k
   stops_TEA1 <- c(stops_TEA1, k)
   
   res <- res_ATEA
@@ -92,6 +95,7 @@ for(lambda in lambdas){
       stop <- 1
     }
   }
+  stop_ATEA <- k
   stops_ATEA <- c(stops_ATEA, k)
   
   res <- res_EB
@@ -104,10 +108,19 @@ for(lambda in lambdas){
       stop <- 1
     }
   }
+  stop_EB <- k
   stops_EB <- c(stops_EB, k)
   
 
 }
+
+stops_TEA0
+stops_TEA0.5
+stops_TEA1
+stops_EB
+stops_ATEA
+
+
 end_time <- Sys.time()
 
 paste0("time elapsed =", end_time - start_time)
@@ -130,23 +143,23 @@ cat("stops_EB<- c(",paste(stops_EB, collapse = ", "), ")", ")\n")
 
 
 
-# plot(lambdas, stops_TEA0, type = "l", xlab = expression(lambda), ylab = "Version")
-# lines(lambdas, stops_TEA0.5, col = "purple")
-# lines(lambdas, stops_TEA1, lty = 2)
-# lines(lambdas, stops_EB, col = "blue")
-# lines(lambdas, stops_ATEA, col = "red")
-# legend(
-#   "topright",
-#   legend = c(
-#     expression("TEA ("*epsilon*" = 0)"),
-#     expression("TEA ("*epsilon*" = 0.5)"),
-#     expression("TEA ("*epsilon*" = 1)"),
-#     "Empirical Bayes",
-#     "A-TEA"
-#   ),
-#   col = c("black", "purple", "black", "blue", "red"),
-#   lty = c(1, 1, 2, 1, 1),
-#   lwd = 2,
-#   bty = "n"
-# )
+plot(lambdas, stops_TEA0, type = "l", xlab = expression(lambda), ylab = "Version")
+lines(lambdas, stops_TEA0.5, col = "purple")
+lines(lambdas, stops_TEA1, lty = 2)
+lines(lambdas, stops_EB, col = "blue")
+lines(lambdas, stops_ATEA, col = "red")
+legend(
+  "topright",
+  legend = c(
+    expression("TEA ("*epsilon*" = 0)"),
+    expression("TEA ("*epsilon*" = 0.5)"),
+    expression("TEA ("*epsilon*" = 1)"),
+    "Empirical Bayes",
+    "A-TEA"
+  ),
+  col = c("black", "purple", "black", "blue", "red"),
+  lty = c(1, 1, 2, 1, 1),
+  lwd = 2,
+  bty = "n"
+)
 
