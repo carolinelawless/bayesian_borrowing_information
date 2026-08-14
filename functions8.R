@@ -5,11 +5,10 @@ smc_sampler_binomial <- function(
     b_theta = b_theta,
     epsilon_const = epsilon_const,
     CSD = CSD
-) {
+){
   
   
   K <- length(V)
-  
   theta_all <- vector("list", K)
   epsilon_all <- vector("list", K)
   
@@ -22,40 +21,38 @@ smc_sampler_binomial <- function(
     n1 <- length(data1)
     s1 <- sum(data1)
     
-
-      logliks0 <- dbinom(
-        s1,
-        n1,
-        theta,
-        log = TRUE
-      )
-      
-      logliks1 <- dbinom(
-        s1,
-        n1,
-        pmax(theta - CSD, 0.01),
-        log = TRUE
-      )
-      
-      logliks2 <- dbinom(
-        s1,
-        n1,
-        pmin(theta + CSD, 0.99),
-        log = TRUE
-      )
-      
-      logliks_borrow <- logliks0
-      logliks_alternative <- pmax(logliks1, logliks2)
-      epsilon <- ifelse(logliks_borrow > logliks_alternative, epsilon_const, 0)
-      
-
+    
+    logliks0 <- dbinom(
+      s1,
+      n1,
+      theta,
+      log = TRUE
+    )
+    
+    logliks1 <- dbinom(
+      s1,
+      n1,
+      pmax(theta - CSD, 0.01),
+      log = TRUE
+    )
+    
+    logliks2 <- dbinom(
+      s1,
+      n1,
+      pmin(theta + CSD, 0.99),
+      log = TRUE
+    )
+    
+    logliks_borrow <- logliks0
+    logliks_alternative <- pmax(logliks1, logliks2)
+    epsilon <- ifelse(logliks_borrow > logliks_alternative, epsilon_const, 0)
+    
+    
     
     z <- rbinom(M, 1, epsilon)
-    
     ind <- which(z == 0)
     
     if (length(ind) > 0) {
-      
       theta[ind] <- rbeta(
         length(ind),
         a_theta,
@@ -64,7 +61,6 @@ smc_sampler_binomial <- function(
       
     }
     
-    #if(epsilon_type == "ATEA" || epsilon_type == "TEA"){
     logliks <- dbinom(
       s1,
       n1,
@@ -72,19 +68,9 @@ smc_sampler_binomial <- function(
       log = TRUE
     )
     
-    # -------------------------
-    # Weight normalization
-    # -------------------------
-    
     maxll <- max(logliks)
-    
     w <- exp(logliks - maxll)
     w <- w / sum(w)
-    
-    # -------------------------
-    # Resampling
-    # -------------------------
-    
     samp <- sample(
       1:M,
       M,
@@ -93,13 +79,9 @@ smc_sampler_binomial <- function(
     )
     
     theta <- theta[samp]
-    
     if (k > 1) {
       epsilon <- epsilon[samp]
     }
-    
-    
-    #}
     
     theta_all[[k]] <- theta
     epsilon_all[[k]] <- epsilon
@@ -117,8 +99,6 @@ smc_sampler_binomial <- function(
 
 
 
-
-
 posterior_sim_binomial <- function(
     params = params,
     M = M,
@@ -131,10 +111,8 @@ posterior_sim_binomial <- function(
 ) {
   
   K <- length(params)
-  
   thetas <- vector("list", K)
   epsilons <- vector("list", K)
-  
   diffs <- numeric(B)
   
   for (k in 1:K) {
@@ -142,15 +120,10 @@ posterior_sim_binomial <- function(
     epsilons[[k]] <- numeric(0)
   }
   
-
+  
   for (b in 1:B) {
     
-    # -------------------------
-    # Simulate data
-    # -------------------------
-    
     n <- rpois(K, lambdas) + 1
-    
     V <- vector("list", K)
     
     for (k in 1:K) {
@@ -160,14 +133,6 @@ posterior_sim_binomial <- function(
         params[k]
       )
     }
-    
-    # -------------------------
-    # Run SMC
-    # -------------------------
-    
-    
-    
-    
     
     smc_out <- smc_sampler_binomial(
       V = V,
@@ -190,8 +155,8 @@ posterior_sim_binomial <- function(
     
     diffs[b] <- 
       mean(thetaK) -
-        mean(theta1)
-
+      mean(theta1)
+    
     
     # -------------------------
     # Store summaries
@@ -220,76 +185,6 @@ posterior_sim_binomial <- function(
       thetas = thetas,
       epsilons = epsilons,
       diffs = diffs
-    )
-  )
-}
-
-
-
-
-
-
-TEA_eval_binomial <- function(
-    params = params,
-    M = M,
-    B = B,
-    lambdas = lambdas,
-    a_theta = a_theta,
-    b_theta = b_theta,
-    epsilon_type = epsilon_type,
-    a_eps = a_eps,
-    b_eps = b_eps,
-    epsilon_const = epsilon_const,
-    CSD = CSD
-) {
-  
-  
-  
-  L <- length(lambdas)
-  
-  variance <- numeric(L)
-  bias <- numeric(L)
-  MSE <- numeric(L)
-  
-  true_diff <- abs(
-    params[length(params)] - params[1]
-  )
-  
-  for (i in seq_along(lambdas)) {
-    
-    print(i)
-    
-    lambda <- lambdas[i]
-    
-    res <- posterior_sim_binomial(
-      params = params,
-      M = M,
-      B = B,
-      lambda = lambda,
-      a_theta = a_theta,
-      b_theta = b_theta,
-      epsilon_type = epsilon_type,
-      a_eps = a_eps,
-      b_eps = b_eps,
-      epsilon_const = epsilon_const,
-      CSD = CSD
-    )
-    
-    variance[i] <- var(res$diffs)
-    
-    bias[i] <- abs(
-      mean(res$diffs) - true_diff
-    )
-    
-    MSE[i] <- variance[i] + bias[i]^2
-    
-  }
-  
-  return(
-    list(
-      variance = variance,
-      bias = bias,
-      MSE = MSE
     )
   )
 }
@@ -348,11 +243,6 @@ plot_trajectories <- function(thetas, epsilons, params, epsilon_type) {
   #        bty = "n")
   # 
 }
-
-
-
-
-
 
 
 

@@ -1,37 +1,27 @@
 remove(list = ls())
+setwd("~/Documents/travail/dmd_when_next_clinical_trial?/bayesian_borrowing_information")
 source("functions7.R")
 
-scenario <- "Gradual"
-scenario <- "Abrupt"
-#scenario <- "Drift"
-scenario <- "Stable"
 
-if(scenario == "Gradual"){
-  params <- seq(0.6, 0.9, length = 10)
-}else if(scenario == "Abrupt"){
-  params <- c(rep(0.6, 9), 0.9)
-}else if(scenario == "Drift"){
-  params <- c(seq(0.6, 0.9, length = 5), seq(0.9, 0.6, length = 5))
-}else if(scenario == "Stable"){
-  params <- rep(0.7, 10)}
-
-a_theta <- 0.5
-b_theta <- 0.5
-
-M <- 500
+M <- 100
 B <- 100
+lambdas <- c(rep(4,9),49)
 
 
-CSD <- 0.2
-epsilon_const <- 0.5
-#thres <- 0.8
-#lambdas <- 1:50
-lambda <- 19
+params <- seq(0.6, 0.9, length = 10)
+#params <- c(rep(0.6, 9), 0.9)
+#params <- rep(0.7, 10)
+CSD <- 0.3
+epsilon_const <- 0
+a_theta <- b_theta <- 0.5
+#plot(density(rbeta(1e4, a_theta, b_theta)))
+res_EB <- posterior_sim_binomial(params, M, B, lambdas, a_theta, b_theta, epsilon_const, CSD)
+plot_trajectories(res_EB$thetas, res_EB$epsilons, params, epsilon_type = "TEA")
 
-a_theta <- b_theta <- 0.005
+a_theta <- b_theta <- 0.5
 res_EB0.05 <- posterior_sim_binomial(params, M, B, lambda, a_theta, b_theta, epsilon_const, CSD)
 plot_trajectories(res_EB0.05$thetas, res_EB0.05$epsilons, params, epsilon_type = "TEA")
-a_theta <- b_theta <- 100
+a_theta <- b_theta <- 10
 res_EB100 <- posterior_sim_binomial(params, M, B, lambda, a_theta, b_theta, epsilon_const, CSD)
 plot_trajectories(res_EB100$thetas, res_EB100$epsilons, params, epsilon_type = "TEA")
 
