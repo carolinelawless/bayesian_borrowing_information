@@ -6,17 +6,17 @@ source("functions8.R")
 t1 <- Sys.time()
 
 M <- 100
-B <- 100
+B <- 2000
 
-n_versions <- 10
-lambda <- 20
+n_versions <- 5
+lambda <- 5
 lambdas <- rep(lambda - 1, n_versions)
 a_theta <- b_theta <- 0.5
 thres <- 0.2 #0.1
 
 #params <- rep(0.7, n_versions)
-#params <- seq(0.6, 0.9, length = n_versions)
-params <- c(rep(0.6, n_versions - 1), 0.9)
+params <- seq(0.6, 0.9, length = n_versions)
+#params <- c(rep(0.6, n_versions - 1), 0.9)
 
 J <- length(params)
 true_diff <- params[J] - params[1]
