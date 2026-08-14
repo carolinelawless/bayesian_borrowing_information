@@ -15,8 +15,8 @@ a_theta <- b_theta <- 0.5
 thres <- 0.2 #0.1
 
 #params <- rep(0.7, n_versions)
-params <- seq(0.6, 0.9, length = n_versions)
-#params <- c(rep(0.6, n_versions - 1), 0.9)
+#params <- seq(0.6, 0.9, length = n_versions)
+params <- c(rep(0.6, n_versions - 1), 0.9)
 
 J <- length(params)
 true_diff <- params[J] - params[1]
