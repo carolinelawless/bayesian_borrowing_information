@@ -6,7 +6,7 @@ source("functions8.R")
 t1 <- Sys.time()
 
 M <- 100
-B <- 5000
+B <- 100
 
 n_versions <- 10
 lambda <- 20
@@ -77,23 +77,15 @@ for(lambda in lambda_vector){
 
 t2 <- Sys.time()
 
-print(paste0("time = ", t2 - t1))
-print(paste0("M = ", M))
-print(paste0("B = ", B))
-print(paste0("versions = ", n_versions))
-print(paste0("thres = ", thres))
 
-cat("elapsed time = ", t2 - t1)
-cat("M = ", M)
-cat("B = ", B)
-cat("n_versions = ", n_versions)
-cat("thres = ", thres)
 
+cat("elapsed time <- ", t2 - t1, "\n")
+cat("thres <- ", thres, "\n")
+cat("M <- ", M, "\n")
+cat("B <- ", B, "\n")
+cat("n_versions <- ", n_versions, "\n")
 cat("params <- c(", paste(params, collapse = ", "), ")\n")
 cat("lambda_vector <- c(", paste(lambda_vector, collapse = ", "), ")\n")
-
-
-
 cat("proba_TEA_0<- c(",paste(proba_TEA_0, collapse = ", "), ")\n")
 cat("proba_TEA_0.5<- c(",paste(proba_TEA_0.5, collapse = ", "), ")\n")
 cat("proba_TEA_1<- c(",paste(proba_TEA_1, collapse = ", "), ")\n")
