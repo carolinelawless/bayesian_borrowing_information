@@ -6,16 +6,27 @@ source("functions8.R")
 t1 <- Sys.time()
 
 M <- 100
-B <- 2000
+#B <- 20000
+B <- 20
 
-n_versions <- 500
+n_versions <- 5
 
 a_theta <- b_theta <- 0.5
 thres <- 0.2 #0.1
 
-#params <- rep(0.7, n_versions)
-#params <- seq(0.6, 0.9, length = n_versions)
-params <- c(rep(0.6, n_versions - 1), 0.9)
+scenario <- "gradual"
+scenario <- "abrupt"
+scenario <- "stable"
+
+if(scenario == "stable"){
+  params <- rep(0.7, n_versions)
+}else if(scenario == "gradual"){
+  params <- seq(0.6, 0.9, length = n_versions)
+}else if(scenario == "abrupt"){
+  params <- c(rep(0.6, n_versions - 1), 0.9)
+}
+
+
 
 J <- length(params)
 true_diff <- params[J] - params[1]
@@ -77,14 +88,16 @@ for(lambda in lambda_vector){
 t2 <- Sys.time()
 
 
-cat("elapsed time <- ", round(difftime(t2, t1, units = "hours"), 2), " hours\n")
-cat("elapsed time <- ", round(difftime(t2, t1, units = "mins"), 2), " mins\n")
+cat("elapsed time <- ", round(difftime(t2, t1, units = "hours"), 2), "\n")
+cat("elapsed time <- ", round(difftime(t2, t1, units = "mins"), 2), "\n")
 
 cat("thres <- ", thres, "\n")
 cat("M <- ", M, "\n")
 cat("B <- ", B, "\n")
-cat("n_versions <- ", n_versions, "\n")
 cat("params <- c(", paste(params, collapse = ", "), ")\n")
+
+cat("n_versions <- ", n_versions, "\n")
+cat("scenario <- ", scenario, "\n")
 cat("lambda_vector <- c(", paste(lambda_vector, collapse = ", "), ")\n")
 cat("proba_TEA_0<- c(",paste(proba_TEA_0, collapse = ", "), ")\n")
 cat("proba_TEA_0.5<- c(",paste(proba_TEA_0.5, collapse = ", "), ")\n")
