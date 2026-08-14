@@ -75,7 +75,7 @@ for(lambda in lambda_vector){
   
 }
 
-t2 <- sys.time()
+t2 <- Sys.time()
 
 print(paste0("time = ", t2 - t1))
 print(paste0("M = ", M))
