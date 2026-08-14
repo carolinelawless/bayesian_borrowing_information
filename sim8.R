@@ -78,9 +78,9 @@ for(lambda in lambda_vector){
 t2 <- Sys.time()
 
 
-cat("elapsed time <- ", difftime(t2, t1, units = "hours"), "\n")
-cat("elapsed time <- ", difftime(t2, t1, units = "mins"), "\n")
-cat("elapsed time <- ", difftime(t2, t1, units = "secs"), "\n")
+cat("elapsed time <- ", round(difftime(t2, t1, units = "hours"), 1), "\n")
+cat("elapsed time <- ", round(difftime(t2, t1, units = "mins"), 1), "\n")
+
 cat("thres <- ", thres, "\n")
 cat("M <- ", M, "\n")
 cat("B <- ", B, "\n")
