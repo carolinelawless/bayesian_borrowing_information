@@ -107,7 +107,8 @@ posterior_sim_binomial <- function(
     a_theta = a_theta,
     b_theta = b_theta,
     epsilon_const = epsilon_const,
-    CSD = CSD
+    CSD = CSD, 
+    thres = thres
 ) {
   
   K <- length(params)
@@ -158,7 +159,7 @@ posterior_sim_binomial <- function(
       mean(thetaK) -
       mean(theta1)
     
-    rho[b] <- sum(theta_all[[K]] - theta_all[[1]] > CSD)/M
+    rho[b] <- sum(theta_all[[K]] - theta_all[[1]] > thres)/M
     
     # -------------------------
     # Store summaries
@@ -249,31 +250,51 @@ plot_trajectories <- function(thetas, epsilons, params, epsilon_type) {
 
 
 plot_rho <- function(n_versions, scenario, lambda_vector,
-                       proba_TEA_0,
-                       proba_TEA_0.5,
-                       proba_TEA_1,
-                       proba_TEA_EB_0.5,
-                       proba_TEA_EB_1) {
+                     proba_TEA_0,
+                     proba_TEA_0.5,
+                     proba_TEA_1,
+                     proba_TEA_EB_0.5,
+                     proba_TEA_EB_1) {
   
-  plot(lambda_vector, proba_TEA_0, type = "l",
-       col = "black",
-       xlab = "λ",
-       ylab = "ρ",
-       main = paste0(n_versions," versions, ", scenario, " scenario")
-  )
+  
+ if(scenario == "stable"){
+   plot(lambda_vector, proba_TEA_0, type = "l",
+        col = "black",
+        xlab = "λ",
+        ylab = "α",
+        main = paste0(n_versions," versions, ", scenario, " scenario"),
+        ylim = c(0, 1)
+   )
+ }else{
+   plot(lambda_vector, proba_TEA_0, type = "l",
+        col = "black",
+        xlab = "λ",
+        ylab = "Power",
+        main = paste0(n_versions," versions, ", scenario, " scenario"),
+        ylim = c(0, 1)
+   )
+ }
+  
+
   
   lines(lambda_vector, proba_TEA_0.5, col = "blue")
   lines(lambda_vector, proba_TEA_1, col = "blue", lty = 2)
   lines(lambda_vector, proba_TEA_EB_0.5, col = "red")
   lines(lambda_vector, proba_TEA_EB_1, col = "red", lty = 2)
   
-  legend("bottomright",
-         legend = c("ε = 0 (no borrowing)", "ε = 0.5 without EB", "ε = 1 without EB (full borrowing)", "ε = 0.5 with EB", "ε = 1 with EB"),
-         col = c("black", "blue", "blue", "red", "red"),
-         lty = c(1, 1, 2, 1, 2))
+  if(scenario == "stable"){
+    legend("topright",
+           legend = c("ε = 0 (no borrowing)", "ε = 0.5 without EB", "ε = 1 without EB (full borrowing)", "ε = 0.5 with EB", "ε = 1 with EB"),
+           col = c("black", "blue", "blue", "red", "red"),
+           lty = c(1, 1, 2, 1, 2))
+  }else{
+    legend("bottomright",
+           legend = c("ε = 0 (no borrowing)", "ε = 0.5 without EB", "ε = 1 without EB (full borrowing)", "ε = 0.5 with EB", "ε = 1 with EB"),
+           col = c("black", "blue", "blue", "red", "red"),
+           lty = c(1, 1, 2, 1, 2))
+  }
+  
+
 }
-
-
-
 
 
