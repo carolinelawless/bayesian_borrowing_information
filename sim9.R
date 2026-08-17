@@ -10,15 +10,15 @@ M <- 100
 #B <- 20000
 B <- 50000
 
-n_versions <- 5
+n_versions <- 10
 
 a_theta <- b_theta <- 0.5
 thres1 <- 0.1
 thres2 <- 0.8
 
-#scenario <- "stable"
+scenario <- "stable"
 #scenario <- "gradual"
-scenario <- "abrupt"
+#scenario <- "abrupt"
 
 
 if(scenario == "stable"){
