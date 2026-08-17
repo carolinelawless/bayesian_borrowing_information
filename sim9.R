@@ -16,8 +16,8 @@ a_theta <- b_theta <- 0.5
 thres1 <- 0.1
 thres2 <- 0.8
 
-scenario <- "stable"
-#scenario <- "gradual"
+#scenario <- "stable"
+scenario <- "gradual"
 #scenario <- "abrupt"
 
 
