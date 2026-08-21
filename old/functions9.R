@@ -257,25 +257,25 @@ plot_rho <- function(n_versions, scenario, lambda_vector,
                      proba_TEA_EB_1) {
   
   
- if(scenario == "stable"){
-   plot(lambda_vector, proba_TEA_0, type = "l",
-        col = "black",
-        xlab = "λ",
-        ylab = "α",
-        main = paste0(n_versions," versions, ", scenario, " scenario"),
-        ylim = c(0, 1)
-   )
- }else{
-   plot(lambda_vector, proba_TEA_0, type = "l",
-        col = "black",
-        xlab = "λ",
-        ylab = "Power",
-        main = paste0(n_versions," versions, ", scenario, " scenario"),
-        ylim = c(0, 1)
-   )
- }
+  if(scenario == "stable"){
+    plot(lambda_vector, proba_TEA_0, type = "l",
+         col = "black",
+         xlab = "λ",
+         ylab = "α",
+         main = paste0(n_versions," versions, ", scenario, " scenario"),
+         ylim = c(0, 1)
+    )
+  }else{
+    plot(lambda_vector, proba_TEA_0, type = "l",
+         col = "black",
+         xlab = "λ",
+         ylab = "Power",
+         main = paste0(n_versions," versions, ", scenario, " scenario"),
+         ylim = c(0, 1)
+    )
+  }
   
-
+  
   
   lines(lambda_vector, proba_TEA_0.5, col = "blue")
   lines(lambda_vector, proba_TEA_1, col = "blue", lty = 2)
@@ -294,7 +294,7 @@ plot_rho <- function(n_versions, scenario, lambda_vector,
            lty = c(1, 1, 2, 1, 2))
   }
   
-
+  
 }
 
 

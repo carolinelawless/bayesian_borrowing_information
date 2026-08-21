@@ -1,6 +1,6 @@
 remove(list = ls())
-#setwd("~/Documents/travail/dmd_when_next_clinical_trial?/bayesian_borrowing_information")
-setwd("/home/clawless/simulations/bayesian_borrowing_information")
+setwd("~/Documents/travail/dmd_when_next_clinical_trial?/bayesian_borrowing_information")
+#setwd("/home/clawless/simulations/bayesian_borrowing_information")
 source("functions9.R")
 
 t1 <- Sys.time()
@@ -8,7 +8,7 @@ t1 <- Sys.time()
 
 M <- 100
 #B <- 20000
-B <- 50000
+B <- 500
 
 n_versions <- 50
 
@@ -47,7 +47,7 @@ rho_TEA_1 <- vector()
 rho_TEA_EB_0.5 <- vector()
 rho_TEA_EB_1 <- vector()
 
-
+lambda <- 10
 lambda_vector <- (1:25)*2
 for(lambda in lambda_vector){
   print(lambda)
@@ -117,7 +117,9 @@ cat("alpha_TEA_1<- c(",paste(alpha_TEA_1, collapse = ", "), ")\n")
 cat("alpha_TEA_EB_0.5<- c(",paste(alpha_TEA_EB_0.5, collapse = ", "), ")\n")
 cat("alpha_TEA_EB_1<- c(",paste(alpha_TEA_EB_1, collapse = ", "), ")\n")
 
-plot_rho(n_versions, scenario, lambda_vector, alpha_TEA_0, alpha_TEA_0.5, alpha_TEA_1, alpha_TEA_EB_0.5, alpha_TEA_EB_1)
+
+
+
 
 
 
