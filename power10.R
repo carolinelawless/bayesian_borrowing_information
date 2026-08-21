@@ -10,7 +10,7 @@ M <- 100
 #B <- 20000
 B <- 50000
 
-n_versions <- 10
+n_versions <- 20
 
 
 a_theta <- b_theta <- 0.5
