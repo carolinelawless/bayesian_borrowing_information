@@ -8,9 +8,9 @@ t1 <- Sys.time()
 
 M <- 100
 #B <- 20000
-B <- 50
+B <- 50000
 
-n_versions <- 20
+n_versions <- 5
 
 
 a_theta <- b_theta <- 0.5
@@ -34,9 +34,9 @@ thres2 <- 0.8
 model <- "gaussian"
 model_params <- gaussian_params
 
-#scenario <- "stable"
+scenario <- "stable"
 #scenario <- "gradual"
-scenario <- "abrupt"
+#scenario <- "abrupt"
 
 
 if(scenario == "stable"){
