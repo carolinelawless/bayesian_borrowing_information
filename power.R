@@ -9,7 +9,7 @@ t1 <- Sys.time()
 M <- 100
 B <- 20000
 
-n_versions <- 10
+n_versions <- 5
 
 
 a_theta <- b_theta <- 0.5
