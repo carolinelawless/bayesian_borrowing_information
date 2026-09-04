@@ -6,9 +6,9 @@ source("functions_EB.R")
 t1 <- Sys.time()
 
 
-M <- 100
+M <- 10
 #B <- 20000
-B <- 500
+B <- 50
 
 
 n_versions <- 10
