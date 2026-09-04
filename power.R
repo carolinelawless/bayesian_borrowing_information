@@ -6,10 +6,8 @@ source("functions_EB.R")
 t1 <- Sys.time()
 
 
-M <- 10
-#B <- 20000
-B <- 50
-
+M <- 100
+B <- 20000
 
 n_versions <- 10
 
@@ -36,9 +34,9 @@ coverage_interval <- 0.75
 model <- "binomial"
 model_params <- binomial_params
 
-#scenario <- "stable"
+scenario <- "stable"
 #scenario <- "gradual"
-scenario <- "abrupt"
+#scenario <- "abrupt"
 
 
 if(scenario == "stable"){

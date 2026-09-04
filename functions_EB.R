@@ -482,7 +482,8 @@ plot_rho <- function(n_versions, scenario, lambda_vector,
                      proba_TEA_0.5,
                      proba_TEA_1,
                      proba_TEA_EB_0.5,
-                     proba_TEA_EB_1) {
+                     proba_TEA_EB_1,
+                     proba_TEA_EB_epsilon) {
   
   
   if(scenario == "stable"){
@@ -509,16 +510,17 @@ plot_rho <- function(n_versions, scenario, lambda_vector,
   lines(lambda_vector, proba_TEA_1, col = "blue", lty = 2)
   lines(lambda_vector, proba_TEA_EB_0.5, col = "red")
   lines(lambda_vector, proba_TEA_EB_1, col = "red", lty = 2)
+  lines(lambda_vector, proba_TEA_EB_epsilon, col = "purple")
   
   if(scenario == "stable"){
     legend("topright",
-           legend = c("ε = 0 (no borrowing)", "ε = 0.5 without EB", "ε = 1 without EB (full borrowing)", "ε = 0.5 with EB", "ε = 1 with EB"),
-           col = c("black", "blue", "blue", "red", "red"),
-           lty = c(1, 1, 2, 1, 2))
+           legend = c("ε = 0 (no borrowing)", "ε = 0.5 without EB", "ε = 1 without EB (full borrowing)", "ε = 0.5 with EB", "ε = 1 with EB", "Liang (2023) EB approach"),
+           col = c("black", "blue", "blue", "red", "red", "purple"),
+           lty = c(1, 1, 2, 1, 2, 1))
   }else{
     legend("bottomright",
-           legend = c("ε = 0 (no borrowing)", "ε = 0.5 without EB", "ε = 1 without EB (full borrowing)", "ε = 0.5 with EB", "ε = 1 with EB"),
-           col = c("black", "blue", "blue", "red", "red"),
+           legend = c("ε = 0 (no borrowing)", "ε = 0.5 without EB", "ε = 1 without EB (full borrowing)", "ε = 0.5 with EB", "ε = 1 with EB", "Liang (2023) EB approach"),
+           col = c("black", "blue", "blue", "red", "red", "purple"),
            lty = c(1, 1, 2, 1, 2))
   }
   
