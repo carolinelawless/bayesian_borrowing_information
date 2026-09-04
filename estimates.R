@@ -1,7 +1,7 @@
 remove(list = ls())
 setwd("~/Documents/travail/dmd_when_next_clinical_trial?/bayesian_borrowing_information")
 #setwd("/home/clawless/simulations/bayesian_borrowing_information")
-source("functions10.R")
+source("functions_EB.R")
 
 
 
@@ -9,7 +9,7 @@ source("functions10.R")
 M <- 100
 B <- 500
 
-n_versions <- 5
+n_versions <- 10
 
 a_theta <- b_theta <- 0.5
 mean_theta <- sd_theta <- sd_obs <- 0.5
@@ -31,9 +31,10 @@ gaussian_params <- list(
 
 thres <- 0.1
 thres2 <- 0.8
+coverage_interval <- 0.95
 
-#scenario <- "stable"
-#scenario <- "gradual"
+scenario <- "stable"
+scenario <- "gradual"
 scenario <- "abrupt"
 
 
@@ -46,23 +47,24 @@ if(scenario == "stable"){
 }
 
 lambda <- 100
+#lambda <- 100
 lambdas <- rep(lambda - 1, n_versions)
 CSD <- 0.2 #TEA with EB
-epsilon_const <- 0.5
+epsilon_const <- 0
 
 
-
-res <- posterior_sim(
-  params = params,
-  M = M,
-  B = B,
-  lambdas = lambdas,
-  epsilon_const = epsilon_const,
-  CSD = CSD,
-  thres = thres,
-  model = "binomial",
-  model_params = binomial_params
-)
+# 
+# res <- posterior_sim(
+#   params = params,
+#   M = M,
+#   B = B,
+#   lambdas = lambdas,
+#   epsilon_const = epsilon_const,
+#   CSD = CSD,
+#   thres = thres,
+#   model = "binomial",
+#   model_params = binomial_params
+# )
 
 
 
@@ -76,13 +78,24 @@ res <- posterior_sim(
   CSD = CSD,
   thres = thres,
   model = "gaussian",
-  model_params = gaussian_params
+  model_params = gaussian_params, 
+  coverage_interval = coverage_interval
 )
 
 
 plot_estimates(res$thetas, res$epsilons, params, lambda)
 
 
+x <- 1:length(params)
 
+plot(1:length(params), params,
+     ylim = c(0, 1),
+     pch = 16,
+     col = rgb(0, 0, 1, 0.4),
+     cex = 2,
+     ylab = "θ",
+     xlab = "Version",
+     xaxt = "n")
 
+axis(1, at = x, labels = x)
 
