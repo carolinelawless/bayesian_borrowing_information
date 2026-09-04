@@ -9,7 +9,7 @@ t1 <- Sys.time()
 M <- 100
 B <- 20000
 
-n_versions <- 20
+n_versions <- 5
 
 
 a_theta <- b_theta <- 0.5
@@ -31,12 +31,12 @@ thres1 <- 0.1
 thres2 <- 0.8
 coverage_interval <- 0.75
 
-model <- "binomial"
-model_params <- binomial_params
+model <- "gaussianl"
+model_params <- gaussian_params
 
-#scenario <- "stable"
+scenario <- "stable"
 #scenario <- "gradual"
-scenario <- "abrupt"
+#scenario <- "abrupt"
 
 
 if(scenario == "stable"){
