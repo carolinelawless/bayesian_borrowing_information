@@ -9,7 +9,7 @@ t1 <- Sys.time()
 M <- 100
 B <- 20000
 
-n_versions <- 20
+n_versions <- 5
 
 
 a_theta <- b_theta <- 0.5
@@ -31,12 +31,12 @@ thres1 <- 0.1
 thres2 <- 0.8
 coverage_interval <- 0.75
 
-model <- "gaussianl"
+model <- "gaussian"
 model_params <- gaussian_params
 
-#scenario <- "stable"
+scenario <- "stable"
 #scenario <- "gradual"
-scenario <- "abrupt"
+#scenario <- "abrupt"
 
 
 if(scenario == "stable"){
@@ -65,7 +65,7 @@ alpha_TEA_EB_epsilon <- vector()
 #lambda_vector <- (1:5)*10
 lambda_vector <- (1:25)*2
 for(lambda in lambda_vector){
-  print(lambda)
+  #print(lambda)
   lambdas <- rep(lambda - 1, n_versions)
   
   CSD <- 1 #TEA without EB

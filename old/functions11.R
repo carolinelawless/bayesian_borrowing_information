@@ -4,7 +4,7 @@ smc_sampler_gaussian <- function(
     mean_theta = mean_theta,
     sd_theta = sd_theta,
     sd_obs = sd_obs,
-    epsilon_const = epsilon_const, #put epsilon_const <- -1 for the Empirical Bayes method of Yang et. al (2023)
+    epsilon_const = epsilon_const,
     CSD = CSD
 ){
   
@@ -75,13 +75,6 @@ smc_sampler_gaussian <- function(
       epsilon_const,
       0
     )
-    
-    if(epsilon_const == -1){
-      logliks3 <- max(logliks1, logliks2)
-      R <- exp(logliks0 - logliks3)
-      epsilon <- R/(1+R)
-    }
-    
     
     
     z <- rbinom(
@@ -199,11 +192,7 @@ smc_sampler_binomial <- function(
     logliks_alternative <- pmax(logliks1, logliks2)
     epsilon <- ifelse(logliks_borrow > logliks_alternative, epsilon_const, 0)
     
-    if(epsilon_const == -1){
-      logliks3 <- max(logliks1, logliks2)
-      R <- exp(logliks0 - logliks3)
-      epsilon <- R/(1+R)
-    }
+    
     
     z <- rbinom(M, 1, epsilon)
     ind <- which(z == 0)
@@ -420,7 +409,7 @@ posterior_sim <- function(
 }
 
 
-plot_estimates <- function(thetas, epsilons, params, lambda, epsilon_const) {
+plot_estimates <- function(thetas, epsilons, params, lambda) {
   
   K <- length(thetas)
   x <- 1:K
@@ -436,8 +425,6 @@ plot_estimates <- function(thetas, epsilons, params, lambda, epsilon_const) {
   }
   proportions <- sapply(epsilons, prop)
   proportions <- as.vector(proportions)
-  
-  mean_epsilons <- sapply(epsilons, mean)
   
   # Base plot for theta
   plot(x, means_theta,
@@ -458,13 +445,7 @@ plot_estimates <- function(thetas, epsilons, params, lambda, epsilon_const) {
   # True theta
   points(x, params, pch = 16, col = rgb(0,0,1,0.4), cex = 2)
   
-  if(epsilon_const == 0){
-    points(x[-1], mean_epsilons[-1], pch = 4, col = "red")
-  }else{
-    points(x[-1], proportions[-1], pch = 4, col = "red")
-  }
-  
-  
+  points(x[-1], proportions[-1], pch = 4, col = "red")
   
   legend("bottomleft",
          legend = c("θ posterior mean", "true theta", "η posterior mean"),
@@ -482,8 +463,7 @@ plot_rho <- function(n_versions, scenario, lambda_vector,
                      proba_TEA_0.5,
                      proba_TEA_1,
                      proba_TEA_EB_0.5,
-                     proba_TEA_EB_1,
-                     proba_TEA_EB_epsilon) {
+                     proba_TEA_EB_1) {
   
   
   if(scenario == "stable"){
@@ -510,17 +490,16 @@ plot_rho <- function(n_versions, scenario, lambda_vector,
   lines(lambda_vector, proba_TEA_1, col = "blue", lty = 2)
   lines(lambda_vector, proba_TEA_EB_0.5, col = "red")
   lines(lambda_vector, proba_TEA_EB_1, col = "red", lty = 2)
-  lines(lambda_vector, proba_TEA_EB_epsilon, col = "purple")
   
   if(scenario == "stable"){
     legend("topright",
-           legend = c("ε = 0 (no borrowing)", "ε = 0.5 without EB", "ε = 1 without EB (full borrowing)", "ε = 0.5 with EB", "ε = 1 with EB", "Liang (2023) EB approach"),
-           col = c("black", "blue", "blue", "red", "red", "purple"),
-           lty = c(1, 1, 2, 1, 2, 1))
+           legend = c("ε = 0 (no borrowing)", "ε = 0.5 without EB", "ε = 1 without EB (full borrowing)", "ε = 0.5 with EB", "ε = 1 with EB"),
+           col = c("black", "blue", "blue", "red", "red"),
+           lty = c(1, 1, 2, 1, 2))
   }else{
     legend("bottomright",
-           legend = c("ε = 0 (no borrowing)", "ε = 0.5 without EB", "ε = 1 without EB (full borrowing)", "ε = 0.5 with EB", "ε = 1 with EB", "Liang (2023) EB approach"),
-           col = c("black", "blue", "blue", "red", "red", "purple"),
+           legend = c("ε = 0 (no borrowing)", "ε = 0.5 without EB", "ε = 1 without EB (full borrowing)", "ε = 0.5 with EB", "ε = 1 with EB"),
+           col = c("black", "blue", "blue", "red", "red"),
            lty = c(1, 1, 2, 1, 2))
   }
   
@@ -556,6 +535,7 @@ plot_coverage <- function(n_versions,
          legend = c("ε = 0 (no borrowing)", "ε = 0.5 without EB", "ε = 1 without EB (full borrowing)", "ε = 0.5 with EB", "ε = 1 with EB"),
          col = c("black", "blue", "blue", "red", "red"),
          pch = c(16, 16, 4, 16, 4)
-         #lty = c(1, 1, 2, 1, 2))
+        #lty = c(1, 1, 2, 1, 2))
   )
 }
+
