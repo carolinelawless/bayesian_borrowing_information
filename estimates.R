@@ -1,7 +1,7 @@
 remove(list = ls())
 setwd("~/Documents/travail/dmd_when_next_clinical_trial?/bayesian_borrowing_information")
 #setwd("/home/clawless/simulations/bayesian_borrowing_information")
-source("functions_EB.R")
+source("functions.R")
 
 
 
@@ -86,7 +86,6 @@ res <- posterior_sim(
 plot_estimates(res$thetas, res$epsilons, params, lambda)
 
 
-x <- 1:length(params)
 
 plot(1:length(params), params,
      ylim = c(0, 1),
